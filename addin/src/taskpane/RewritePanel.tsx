@@ -1,11 +1,13 @@
-import { useState } from "react";
 import { Edit05 } from "@untitledui/icons";
+import { useEffect, useRef, useState } from "react";
 import { RewriteError, type RewriteClient, type RewriteResult } from "@/api/rewrite-client";
 import { Badge } from "@/components/base/badges/badges";
 import { Button } from "@/components/base/buttons/button";
-import { useGateway, type SelectedParagraph } from "@/office";
+import { useGateway } from "@/office/gateway-context";
+import type { SelectedParagraph } from "@/office/types";
 import { DiffView } from "./DiffView";
 import { parseProtectedTerms, type Settings } from "./settings";
+import { CARD } from "./styles";
 
 interface RewritePanelProps {
   client: RewriteClient;
@@ -15,63 +17,83 @@ interface RewritePanelProps {
 }
 
 type State =
-  | { step: "idle" }
-  | { step: "loading" }
-  | { step: "proposal"; paragraph: SelectedParagraph; result: RewriteResult }
-  | { step: "inserting"; paragraph: SelectedParagraph; result: RewriteResult }
-  | { step: "done" };
+  | { step: "idle" | "loading" | "done" }
+  | { step: "proposal" | "inserting"; paragraph: SelectedParagraph; result: RewriteResult };
 
 export function RewritePanel({ client, settings, onInserted }: RewritePanelProps) {
   const gateway = useGateway();
   const [state, setState] = useState<State>({ step: "idle" });
   const [error, setError] = useState<string | null>(null);
-  const canTrack = gateway.supportsTrackedChanges();
+  const requestRef = useRef<AbortController | null>(null);
+  const rewriteButtonRef = useRef<HTMLButtonElement>(null);
 
-  async function requestRewrite() {
+  const canTrack = gateway.supportsTrackedChanges();
+  const proposal = state.step === "proposal" || state.step === "inserting" ? state : null;
+
+  useEffect(() => () => requestRef.current?.abort(), []);
+
+  async function handleRewrite() {
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
     setError(null);
     setState({ step: "loading" });
+
     try {
       const paragraph = await gateway.getSelectedParagraph();
+      if (controller.signal.aborted) return;
       if (!paragraph) {
         setError("Put the cursor in the paragraph you want to rewrite, then try again.");
         setState({ step: "idle" });
         return;
       }
-      const result = await client.rewrite({
-        text: paragraph.text,
-        targetGrade: settings.targetGrade,
-        tone: settings.tone,
-        protectedTerms: parseProtectedTerms(settings.protectedTerms),
-        ...(settings.model ? { model: settings.model } : {}),
-      });
+      const result = await client.rewrite(
+        {
+          text: paragraph.text,
+          targetGrade: settings.targetGrade,
+          tone: settings.tone,
+          protectedTerms: parseProtectedTerms(settings.protectedTerms),
+          ...(settings.model ? { model: settings.model } : {}),
+        },
+        controller.signal,
+      );
+      if (controller.signal.aborted) return;
       setState({ step: "proposal", paragraph, result });
     } catch (e) {
-      setError(e instanceof RewriteError ? e.message : "Something went wrong while rewriting.");
+      if (controller.signal.aborted) return;
+      setError(e instanceof RewriteError ? e.message : "Something went wrong while rewriting. Try again.");
       setState({ step: "idle" });
     }
   }
 
-  async function insert() {
+  async function handleInsert() {
     if (state.step !== "proposal") return;
+    const controller = new AbortController();
+    requestRef.current = controller;
     setError(null);
     setState({ ...state, step: "inserting" });
+
     try {
       await gateway.replaceParagraphAsTrackedChange(state.paragraph, state.result.rewrite);
+      if (controller.signal.aborted) return;
       setState({ step: "done" });
+      rewriteButtonRef.current?.focus();
       onInserted();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Word could not insert the rewrite.");
-      setState({ ...state, step: "proposal" });
+      if (controller.signal.aborted) return;
+      setError(e instanceof Error ? e.message : "Could not insert the rewrite. Try again.");
+      setState(state);
     }
   }
 
-  const proposal = state.step === "proposal" || state.step === "inserting" ? state : null;
+  function handleDiscard() {
+    requestRef.current?.abort();
+    setState({ step: "idle" });
+    rewriteButtonRef.current?.focus();
+  }
 
   return (
-    <section
-      aria-labelledby="rewrite-heading"
-      className="rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary"
-    >
+    <section aria-labelledby="rewrite-heading" className={`${CARD} p-4`}>
       <h2 id="rewrite-heading" className="text-sm font-semibold text-secondary">
         Rewrite
       </h2>
@@ -79,12 +101,13 @@ export function RewritePanel({ client, settings, onInserted }: RewritePanelProps
         Only the paragraph with your cursor is sent to the rewrite server.
       </p>
       <Button
+        ref={rewriteButtonRef}
         className="mt-3 w-full"
         size="sm"
         iconLeading={Edit05}
         isLoading={state.step === "loading"}
         showTextWhileLoading
-        onClick={requestRewrite}
+        onClick={handleRewrite}
       >
         Rewrite in plain language
       </Button>
@@ -95,9 +118,10 @@ export function RewritePanel({ client, settings, onInserted }: RewritePanelProps
         </p>
       )}
 
-      <div role="status" className="mt-3 text-sm text-success-primary empty:hidden">
-        {state.step === "done" ? "Inserted as a tracked change. Accept or reject it in the Review tab." : ""}
-      </div>
+      <p role="status" className="mt-3 text-sm text-success-primary empty:hidden">
+        {state.step === "proposal" && "Rewrite ready. Review the changes below."}
+        {state.step === "done" && "Inserted as a tracked change. Accept or reject it in the Review tab."}
+      </p>
 
       {proposal && (
         <div className="mt-3 flex flex-col gap-3">
@@ -134,12 +158,12 @@ export function RewritePanel({ client, settings, onInserted }: RewritePanelProps
               isDisabled={!canTrack}
               isLoading={state.step === "inserting"}
               showTextWhileLoading
-              onClick={insert}
+              onClick={handleInsert}
             >
               Insert as tracked change
             </Button>
-            <Button size="sm" color="secondary" onClick={() => setState({ step: "idle" })}>
-              Discard
+            <Button size="sm" color="secondary" onClick={handleDiscard}>
+              Discard rewrite
             </Button>
           </div>
           {!canTrack && (

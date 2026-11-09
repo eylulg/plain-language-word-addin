@@ -1,18 +1,10 @@
+import { ISSUE_LABELS, ISSUE_TYPES, type DocumentAnalysis } from "@/analysis/types";
 import { Badge } from "@/components/base/badges/badges";
-import { ISSUE_LABELS, ISSUE_TYPES, type DocumentAnalysis } from "@/analysis";
+import { CARD } from "./styles";
 
 interface ScoreCardProps {
   analysis: DocumentAnalysis;
   targetGrade: number;
-}
-
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="flex flex-col">
-      <dt className="text-xs text-tertiary">{label}</dt>
-      <dd className="text-sm font-semibold text-primary">{value}</dd>
-    </div>
-  );
 }
 
 export function ScoreCard({ analysis, targetGrade }: ScoreCardProps) {
@@ -21,10 +13,7 @@ export function ScoreCard({ analysis, targetGrade }: ScoreCardProps) {
   const onTarget = gap <= 0;
 
   return (
-    <section
-      aria-labelledby="score-heading"
-      className="rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary"
-    >
+    <section aria-labelledby="score-heading" className={`${CARD} p-4`}>
       <h2 id="score-heading" className="text-sm font-semibold text-secondary">
         Document score
       </h2>
@@ -44,10 +33,9 @@ export function ScoreCard({ analysis, targetGrade }: ScoreCardProps) {
         <Stat label="Words" value={stats.words} />
       </dl>
       <p className="mt-3 text-sm text-tertiary">
-        Reads as <span className="font-medium text-secondary">{label.toLowerCase()}</span>.
+        Readability: <span className="font-medium text-secondary">{label}</span>
       </p>
 
-      <h3 className="sr-only">Issues by type</h3>
       <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Issues by type">
         {ISSUE_TYPES.map((type) => (
           <li key={type}>
@@ -58,5 +46,14 @@ export function ScoreCard({ analysis, targetGrade }: ScoreCardProps) {
         ))}
       </ul>
     </section>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="flex flex-col">
+      <dt className="text-xs text-tertiary">{label}</dt>
+      <dd className="text-sm font-semibold text-primary">{value}</dd>
+    </div>
   );
 }

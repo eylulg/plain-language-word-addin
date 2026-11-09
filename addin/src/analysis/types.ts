@@ -76,8 +76,3 @@ export type ReadabilityLabel =
   | "Fairly difficult"
   | "Difficult"
   | "Very difficult";
-
-export interface AnalysisOptions {
-  /** Sentences with more words than this are flagged. Default 25. */
-  longSentenceWords?: number;
-}

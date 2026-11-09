@@ -12,7 +12,7 @@ import {
 } from "./wordlists";
 import { escapeRegExp, tokenizeWords } from "./words";
 
-export interface Finding {
+interface Finding {
   type: IssueType;
   match: string;
   message: string;

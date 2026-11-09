@@ -1,19 +1,17 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createRewriteClient } from "@/api/rewrite-client";
-import { createPreviewGateway, createWordGateway, GatewayProvider, type WordGateway } from "@/office";
+import { GatewayProvider } from "@/office/GatewayProvider";
+import { createPreviewGateway } from "@/office/preview-gateway";
+import type { WordGateway } from "@/office/types";
+import { createWordGateway } from "@/office/word-gateway";
 import { App } from "@/taskpane/App";
 import "@/styles/globals.css";
 
-function applyOfficeTheme() {
-  const background = Office.context?.officeTheme?.bodyBackgroundColor;
-  if (!background) return;
-  const hex = background.replace("#", "");
-  const luminance =
-    parseInt(hex.slice(0, 2), 16) * 0.299 +
-    parseInt(hex.slice(2, 4), 16) * 0.587 +
-    parseInt(hex.slice(4, 6), 16) * 0.114;
-  document.documentElement.classList.toggle("dark-mode", luminance < 128);
+function isDark(hexColor: string): boolean {
+  const hex = hexColor.replace("#", "");
+  const channel = (start: number) => parseInt(hex.slice(start, start + 2), 16);
+  return channel(0) * 0.299 + channel(2) * 0.587 + channel(4) * 0.114 < 128;
 }
 
 function render(gateway: WordGateway) {
@@ -32,12 +30,15 @@ if (typeof Office === "undefined") {
   // office.js did not load, for example offline in a plain browser tab.
   render(createPreviewGateway());
 } else {
-  void Office.onReady((info) => {
-    if (info.host === Office.HostType.Word) {
-      applyOfficeTheme();
+  Office.onReady()
+    .then((info) => {
+      if (info.host !== Office.HostType.Word) {
+        render(createPreviewGateway());
+        return;
+      }
+      const background = Office.context.officeTheme?.bodyBackgroundColor;
+      document.documentElement.classList.toggle("dark-mode", background ? isDark(background) : false);
       render(createWordGateway());
-    } else {
-      render(createPreviewGateway());
-    }
-  });
+    })
+    .catch(reportError);
 }

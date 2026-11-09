@@ -1,5 +1,7 @@
+import { z } from "zod";
+
 export const TONES = ["neutral", "friendly", "formal"] as const;
-export type Tone = (typeof TONES)[number];
+type Tone = (typeof TONES)[number];
 
 export interface RewriteRequest {
   text: string;
@@ -10,13 +12,17 @@ export interface RewriteRequest {
   protectedTerms: string[];
 }
 
-export interface RewriteResult {
-  rewrite: string;
-  changes: string[];
-  warnings: string[];
-  model: string;
-  demo: boolean;
-}
+const RewriteResultSchema = z.object({
+  rewrite: z.string(),
+  changes: z.array(z.string()),
+  warnings: z.array(z.string()).default([]),
+  model: z.string(),
+  demo: z.boolean().default(false),
+});
+
+export type RewriteResult = z.infer<typeof RewriteResultSchema>;
+
+const ErrorBodySchema = z.object({ error: z.string() });
 
 export class RewriteError extends Error {
   constructor(
@@ -32,22 +38,14 @@ export interface RewriteClient {
   rewrite(request: RewriteRequest, signal?: AbortSignal): Promise<RewriteResult>;
 }
 
-export const DEFAULT_API_URL: string = import.meta.env.VITE_REWRITE_API_URL ?? "https://localhost:8787";
-
-function isRewriteResult(value: unknown): value is RewriteResult {
-  if (typeof value !== "object" || value === null) return false;
-  const v = value as Record<string, unknown>;
-  return typeof v.rewrite === "string" && Array.isArray(v.changes) && typeof v.model === "string";
-}
-
-const STATUS_MESSAGES: Record<number, string> = {
+const STATUS_MESSAGES: Partial<Record<number, string>> = {
   413: "That paragraph is too long to rewrite in one go. Split it first.",
-  422: "The model declined to rewrite this paragraph.",
+  422: "The model declined to rewrite this paragraph. Try rewording it yourself.",
   429: "Too many rewrites in a short time. Wait a minute and try again.",
 };
 
 export function createRewriteClient(
-  baseUrl: string = DEFAULT_API_URL,
+  baseUrl: string = import.meta.env.VITE_REWRITE_API_URL ?? "https://localhost:8787",
   fetchImpl: typeof fetch = fetch,
 ): RewriteClient {
   const endpoint = `${baseUrl.replace(/\/+$/, "")}/rewrite`;
@@ -62,23 +60,22 @@ export function createRewriteClient(
           signal,
         });
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") throw error;
-        throw new RewriteError("Could not reach the rewrite server. Check that it is running.");
+        if (signal?.aborted) throw error;
+        throw new RewriteError("Could not reach the rewrite server. Check your connection and try again.");
       }
 
       const body: unknown = await response.json().catch(() => null);
       if (!response.ok) {
-        const serverMessage =
-          typeof body === "object" && body !== null && typeof (body as { error?: unknown }).error === "string"
-            ? (body as { error: string }).error
-            : undefined;
+        const serverMessage = ErrorBodySchema.safeParse(body).data?.error;
         throw new RewriteError(
-          STATUS_MESSAGES[response.status] ?? serverMessage ?? "The rewrite failed.",
+          STATUS_MESSAGES[response.status] ?? serverMessage ?? "The rewrite failed. Try again.",
           response.status,
         );
       }
-      if (!isRewriteResult(body)) throw new RewriteError("The server sent an unexpected response.");
-      return { ...body, warnings: body.warnings ?? [], demo: body.demo ?? false };
+      const result = RewriteResultSchema.safeParse(body);
+      if (!result.success)
+        throw new RewriteError("The rewrite server sent an unexpected response. Try again.");
+      return result.data;
     },
   };
 }

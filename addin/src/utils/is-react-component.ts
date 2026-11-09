@@ -7,14 +7,14 @@ type ReactComponent = React.FC<any> | React.ComponentClass<any, any>;
 /**
  * Checks if a given value is a function component.
  */
-export const isFunctionComponent = (component: any): component is React.FC<any> => {
+const isFunctionComponent = (component: any): component is React.FC<any> => {
   return typeof component === "function";
 };
 
 /**
  * Checks if a given value is a class component.
  */
-export const isClassComponent = (component: any): component is React.ComponentClass<any, any> => {
+const isClassComponent = (component: any): component is React.ComponentClass<any, any> => {
   return (
     typeof component === "function" &&
     component.prototype &&
@@ -25,7 +25,7 @@ export const isClassComponent = (component: any): component is React.ComponentCl
 /**
  * Checks if a given value is a forward ref component.
  */
-export const isForwardRefComponent = (component: any): component is React.ForwardRefExoticComponent<any> => {
+const isForwardRefComponent = (component: any): component is React.ForwardRefExoticComponent<any> => {
   return (
     typeof component === "object" &&
     component !== null &&

@@ -1,6 +1,6 @@
+import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { fileURLToPath } from "node:url";
 import { defineConfig, type ServerOptions } from "vite";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
@@ -23,7 +23,7 @@ export default defineConfig(async ({ command }) => {
       alias: { "@": `${root}src` },
     },
     server: {
-      port: 3000,
+      port: 3100,
       strictPort: true,
       https: needsHttps ? await httpsOptions() : undefined,
     },
@@ -38,7 +38,7 @@ export default defineConfig(async ({ command }) => {
     },
     test: {
       environment: "jsdom",
-      setupFiles: ["./test/setup.ts"],
+      setupFiles: ["./src/test-utils/setup.ts"],
       css: false,
       restoreMocks: true,
     },

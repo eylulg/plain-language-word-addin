@@ -1,17 +1,24 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RefreshCw01 } from "@untitledui/icons";
-import { analyzeDocument, type DocumentAnalysis, type Issue } from "@/analysis";
+import { useEffect, useRef, useState } from "react";
+import { analyzeDocument, LONG_SENTENCE_WORDS } from "@/analysis/analyze";
+import type { DocumentAnalysis, Issue } from "@/analysis/types";
 import type { RewriteClient } from "@/api/rewrite-client";
 import { Button } from "@/components/base/buttons/button";
 import { Toggle } from "@/components/base/toggle/toggle";
-import { useGateway, type SentenceRef } from "@/office";
+import { useGateway } from "@/office/gateway-context";
+import type { SentenceRef } from "@/office/types";
 import { IssueList } from "./IssueList";
 import { RewritePanel } from "./RewritePanel";
 import { ScoreCard } from "./ScoreCard";
-import { SettingsPanel } from "./SettingsPanel";
 import { useSettings } from "./settings";
+import { SettingsPanel } from "./SettingsPanel";
 
-export const HIGHLIGHT_COLOR = "Yellow";
+const HIGHLIGHT_COLOR = "Yellow";
+const READ_ERROR = "Could not read the document. Select Analyse to try again.";
+
+function analysisStatus(result: DocumentAnalysis): string {
+  return `Analysed ${result.stats.words} words. Found ${result.issues.length} issues.`;
+}
 
 export function App({ client }: { client: RewriteClient }) {
   const gateway = useGateway();
@@ -21,80 +28,83 @@ export function App({ client }: { client: RewriteClient }) {
   const [error, setError] = useState<string | null>(null);
   const [highlighted, setHighlighted] = useState(false);
   const [busy, setBusy] = useState(true);
-  /** The sentences currently highlighted, so they can be cleared even after a re-analysis. */
+  /** What is highlighted in Word right now, so it can be cleared after a re-analysis. */
   const highlightedRefs = useRef<SentenceRef[]>([]);
+  /** Each Word call bumps this; a result is only shown if no newer call started. */
+  const latestCall = useRef(0);
 
-  const longSentences = useMemo<SentenceRef[]>(
-    () =>
-      analysis?.issues
-        .filter((i) => i.type === "long-sentence")
-        .map((i) => ({ paragraphIndex: i.paragraphIndex, text: i.sentence })) ?? [],
-    [analysis],
-  );
+  const longSentences: SentenceRef[] =
+    analysis?.issues
+      .filter((i) => i.type === "long-sentence")
+      .map((i) => ({ paragraphIndex: i.paragraphIndex, text: i.sentence })) ?? [];
 
-  const showAnalysis = useCallback((paragraphs: string[]) => {
-    const result = analyzeDocument(paragraphs);
-    setAnalysis(result);
-    setStatus(`Analysed ${result.stats.words} words. Found ${result.issues.length} issues.`);
-  }, []);
-
-  const analyse = useCallback(async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      showAnalysis(await gateway.readParagraphs());
-    } catch {
-      setError("Could not read the document.");
-    } finally {
-      setBusy(false);
-    }
-  }, [gateway, showAnalysis]);
-
-  // First analysis on open. State is only set once Word answers.
   useEffect(() => {
     let active = true;
     gateway
       .readParagraphs()
-      .then(
-        (paragraphs) => active && showAnalysis(paragraphs),
-        () => active && setError("Could not read the document."),
-      )
-      .finally(() => active && setBusy(false));
+      .then((paragraphs) => {
+        if (!active) return;
+        const result = analyzeDocument(paragraphs);
+        setAnalysis(result);
+        setStatus(analysisStatus(result));
+      })
+      .catch(() => {
+        if (active) setError(READ_ERROR);
+      })
+      .finally(() => {
+        if (active) setBusy(false);
+      });
     return () => {
       active = false;
     };
-  }, [gateway, showAnalysis]);
+  }, [gateway]);
 
-  async function selectIssue(issue: Issue) {
+  async function handleAnalyse() {
+    const call = ++latestCall.current;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = analyzeDocument(await gateway.readParagraphs());
+      if (call !== latestCall.current) return;
+      setAnalysis(result);
+      setStatus(analysisStatus(result));
+    } catch {
+      if (call === latestCall.current) setError(READ_ERROR);
+    } finally {
+      if (call === latestCall.current) setBusy(false);
+    }
+  }
+
+  async function handleSelectIssue(issue: Issue) {
+    const call = ++latestCall.current;
     setError(null);
     try {
       const found = await gateway.selectSentence({
         paragraphIndex: issue.paragraphIndex,
         text: issue.sentence,
       });
-      setStatus(found ? "Sentence selected in the document." : "");
-      if (!found)
-        setError("Could not find that sentence. The document may have changed, so analyse it again.");
+      if (call !== latestCall.current) return;
+      if (found) setStatus("Sentence selected in the document.");
+      else setError("Could not find that sentence. The document may have changed, so analyse it again.");
     } catch {
-      setError("Word could not select that sentence.");
+      if (call === latestCall.current) setError("Could not select that sentence. Try again.");
     }
   }
 
-  async function toggleHighlight(on: boolean) {
+  async function handleHighlightChange(on: boolean) {
+    const call = ++latestCall.current;
+    const refs = on ? longSentences : highlightedRefs.current;
     setError(null);
     try {
-      if (on) {
-        const count = await gateway.highlightSentences(longSentences, HIGHLIGHT_COLOR);
-        highlightedRefs.current = longSentences;
-        setStatus(`Highlighted ${count} long ${count === 1 ? "sentence" : "sentences"}.`);
-      } else {
-        await gateway.highlightSentences(highlightedRefs.current, null);
-        highlightedRefs.current = [];
-        setStatus("Highlights removed.");
-      }
+      const count = await gateway.highlightSentences(refs, on ? HIGHLIGHT_COLOR : null);
+      highlightedRefs.current = on ? refs : [];
+      if (call !== latestCall.current) return;
       setHighlighted(on);
+      setStatus(
+        on ? `Highlighted ${count} long ${count === 1 ? "sentence" : "sentences"}.` : "Highlights removed.",
+      );
     } catch {
-      setError("Word could not change the highlights.");
+      if (call === latestCall.current) setError("Could not change the highlights. Try again.");
     }
   }
 
@@ -107,14 +117,21 @@ export function App({ client }: { client: RewriteClient }) {
             <p className="text-xs text-tertiary">Browser preview with a sample document</p>
           )}
         </div>
-        <Button size="sm" color="secondary" iconLeading={RefreshCw01} isLoading={busy} onClick={analyse}>
+        <Button
+          size="sm"
+          color="secondary"
+          iconLeading={RefreshCw01}
+          isLoading={busy}
+          showTextWhileLoading
+          onClick={handleAnalyse}
+        >
           Analyse
         </Button>
       </header>
 
-      <div role="status" aria-live="polite" className="sr-only">
+      <p role="status" className="sr-only">
         {status}
-      </div>
+      </p>
       {error && (
         <p role="alert" className="rounded-lg bg-error-primary p-3 text-sm text-error-primary">
           {error}
@@ -127,13 +144,13 @@ export function App({ client }: { client: RewriteClient }) {
           <Toggle
             size="sm"
             label="Highlight long sentences"
-            hint={`${longSentences.length} over 25 words`}
+            hint={`${longSentences.length} over ${LONG_SENTENCE_WORDS} words`}
             isSelected={highlighted}
             isDisabled={!highlighted && longSentences.length === 0}
-            onChange={toggleHighlight}
+            onChange={handleHighlightChange}
           />
-          <RewritePanel client={client} settings={settings} onInserted={analyse} />
-          <IssueList paragraphs={analysis.paragraphs} onSelect={selectIssue} />
+          <RewritePanel client={client} settings={settings} onInserted={handleAnalyse} />
+          <IssueList paragraphs={analysis.paragraphs} onSelect={handleSelectIssue} />
         </>
       )}
 

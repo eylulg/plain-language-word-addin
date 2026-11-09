@@ -7,27 +7,23 @@ import {
 } from "./detectors";
 import { countText, readabilityLabel, statsFromCounts } from "./readability";
 import { splitSentences } from "./sentences";
-import type { AnalysisOptions, DocumentAnalysis, Issue, IssueCounts, ParagraphAnalysis } from "./types";
-import { ISSUE_TYPES } from "./types";
+import type { DocumentAnalysis, Issue, IssueCounts, ParagraphAnalysis } from "./types";
 
-export const DEFAULT_LONG_SENTENCE_WORDS = 25;
-
-export function emptyIssueCounts(): IssueCounts {
-  return Object.fromEntries(ISSUE_TYPES.map((type) => [type, 0])) as IssueCounts;
-}
+export const LONG_SENTENCE_WORDS = 25;
 
 export function countIssues(issues: readonly Issue[]): IssueCounts {
-  const counts = emptyIssueCounts();
+  const counts: IssueCounts = {
+    "long-sentence": 0,
+    "passive-voice": 0,
+    nominalisation: 0,
+    jargon: 0,
+    filler: 0,
+  };
   for (const issue of issues) counts[issue.type] += 1;
   return counts;
 }
 
-export function analyzeParagraph(
-  text: string,
-  index: number,
-  options: AnalysisOptions = {},
-): ParagraphAnalysis {
-  const maxWords = options.longSentenceWords ?? DEFAULT_LONG_SENTENCE_WORDS;
+export function analyzeParagraph(text: string, index: number): ParagraphAnalysis {
   const sentences = splitSentences(text);
   const issues: Issue[] = [];
 
@@ -39,7 +35,7 @@ export function analyzeParagraph(
       (n) => !jargonText.some((j) => j.includes(n.match.toLowerCase())),
     );
     const findings = [
-      ...findLongSentence(sentence.text, maxWords),
+      ...findLongSentence(sentence.text, LONG_SENTENCE_WORDS),
       ...findPassiveVoice(sentence.text),
       ...nominalisations,
       ...jargon,
@@ -61,17 +57,13 @@ export function analyzeParagraph(
 }
 
 /**
- * Analyses a document given as a list of paragraph texts, in document order.
+ * Analyses a document given as paragraph texts in document order.
  * Empty paragraphs keep their index so issues map back to Word paragraphs.
  */
-export function analyzeDocument(
-  paragraphs: readonly string[],
-  options: AnalysisOptions = {},
-): DocumentAnalysis {
-  const analysed = paragraphs.map((text, index) => analyzeParagraph(text, index, options));
+export function analyzeDocument(paragraphs: readonly string[]): DocumentAnalysis {
+  const analysed = paragraphs.map((text, index) => analyzeParagraph(text, index));
   const withText = analysed.filter((p) => p.sentences.length > 0);
-  const allSentences = withText.flatMap((p) => p.sentences.map((s) => s.text));
-  const stats = statsFromCounts(countText(allSentences));
+  const stats = statsFromCounts(countText(withText.flatMap((p) => p.sentences.map((s) => s.text))));
   const issues = withText.flatMap((p) => p.issues);
   return {
     paragraphs: withText,

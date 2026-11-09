@@ -92,5 +92,5 @@ function iconPixel(size) {
 for (const size of SIZES) {
   const file = new URL(`../public/assets/icon-${size}.png`, import.meta.url);
   writeFileSync(file, png(size, iconPixel(size)));
-  console.log(`wrote ${file.pathname}`);
+  process.stdout.write(`wrote ${file.pathname}\n`);
 }

@@ -1,12 +1,12 @@
-export type DiffOp = "equal" | "insert" | "delete";
+type DiffOp = "equal" | "insert" | "delete";
 
-export interface DiffPart {
+interface DiffPart {
   op: DiffOp;
   text: string;
 }
 
 /** Splits into words and the whitespace between them, so joins are lossless. */
-export function diffTokens(text: string): string[] {
+function diffTokens(text: string): string[] {
   return text.match(/\s+|[^\s]+/g) ?? [];
 }
 

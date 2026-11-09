@@ -1,4 +1,4 @@
-import type { FC, ReactElement, ReactNode } from "react";
+import type { FC, ReactElement, ReactNode, Ref } from "react";
 import { isValidElement } from "react";
 import type { ButtonProps as AriaButtonProps, LinkProps as AriaLinkProps } from "react-aria-components";
 import { Button as AriaButton, Link as AriaLink } from "react-aria-components";
@@ -156,7 +156,9 @@ export interface CommonProps {
 /**
  * Props for the button variant (non-link)
  */
-export interface ButtonProps extends CommonProps, Omit<AriaButtonProps, "children" | "className"> {}
+export interface ButtonProps extends CommonProps, Omit<AriaButtonProps, "children" | "className"> {
+    ref?: Ref<HTMLButtonElement>;
+}
 /**
  * Props for the link variant (anchor tag)
  */
