@@ -25,8 +25,3 @@ export const LIST_ITEMS = [
 ];
 
 export const MANUAL_LINE_BREAKS = "Name: Ada Lovelace\vAddress: 1 Main Street\vThe form is complete.";
-
-export const FILLERS = "It should be noted that this is really very simple. Basically, just sign it.";
-
-export const PASSIVE =
-  "The form was signed by the tenant. The keys were not returned. Mistakes were made. She is interested.";
