@@ -1,0 +1,39 @@
+{
+  "name": "plain-language-word-addin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Microsoft Word add-in that scores readability and rewrites paragraphs in plain language with Claude.",
+  "license": "MIT",
+  "author": "Eylül Güneş",
+  "type": "module",
+  "workspaces": [
+    "addin",
+    "server"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test --workspaces",
+    "build": "npm run build --workspaces",
+    "dev:addin": "npm run dev -w addin",
+    "dev:server": "npm run dev -w server",
+    "start": "npm run start -w addin"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.2"
+  }
+}
