@@ -1,4 +1,6 @@
 import js from "@eslint/js";
+import { flatConfigs as importX } from "eslint-plugin-import-x";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
@@ -18,6 +20,25 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.strict,
   {
+    plugins: { "import-x": importX.recommended.plugins["import-x"] },
+    rules: {
+      "import-x/order": [
+        "error",
+        {
+          groups: ["builtin", "external", "internal", ["parent", "sibling", "index"]],
+          pathGroups: [{ pattern: "@/**", group: "internal" }],
+          pathGroupsExcludedImportTypes: ["builtin"],
+          "newlines-between": "never",
+          alphabetize: { order: "asc", caseInsensitive: true },
+        },
+      ],
+      "import-x/no-duplicates": "error",
+      "no-console": "error",
+      "no-void": "error",
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+    },
+  },
+  {
     files: ["addin/**/*.{ts,tsx}"],
     languageOptions: {
       globals: { ...globals.browser, Office: "readonly", Word: "readonly" },
@@ -25,26 +46,16 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      "jsx-a11y": jsxA11y,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      ...jsxA11y.flatConfigs.recommended.rules,
+      "react-refresh/only-export-components": ["error", { allowConstantExport: true }],
     },
   },
   {
-    files: ["server/**/*.ts", "*.js", "addin/*.ts", "**/scripts/**/*.mjs"],
+    files: ["server/**/*.ts", "*.js", "*.mjs", "addin/*.ts", "**/scripts/**/*.mjs"],
     languageOptions: { globals: globals.node },
-  },
-  {
-    files: ["**/*.test.{ts,tsx}", "**/test/**/*.{ts,tsx}"],
-    rules: {
-      // Tests index into fixtures they just built; a failed assertion is clearer than a guard.
-      "@typescript-eslint/no-non-null-assertion": "off",
-    },
-  },
-  {
-    rules: {
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
-    },
   },
 );

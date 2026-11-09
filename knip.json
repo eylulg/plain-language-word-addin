@@ -1,0 +1,21 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {},
+    "addin": {
+      "entry": ["src/**/__tests__/**/*.test.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.mjs"],
+      "ignore": ["src/components/base/**"],
+      "ignoreDependencies": [
+        "tailwindcss",
+        "@tailwindcss/typography",
+        "tailwindcss-animate",
+        "tailwindcss-react-aria-components"
+      ]
+    },
+    "server": {
+      "entry": ["src/index.ts", "src/worker.ts", "src/__tests__/**/*.test.ts"],
+      "project": ["src/**/*.ts"]
+    }
+  }
+}

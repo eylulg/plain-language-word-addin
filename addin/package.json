@@ -7,13 +7,13 @@
   "config": {
     "app_to_debug": "word",
     "app_type_to_debug": "desktop",
-    "dev_server_port": 3000
+    "dev_server_port": 3100
   },
   "scripts": {
     "dev": "vite",
     "dev-server": "vite",
-    "start": "office-addin-debugging start manifest.xml desktop --app word --dev-server \"npm run dev-server\" --dev-server-port 3000",
-    "start:web": "office-addin-debugging start manifest.xml web --app word --dev-server \"npm run dev-server\" --dev-server-port 3000",
+    "start": "office-addin-debugging start manifest.xml desktop --app word --dev-server \"npm run dev-server\" --dev-server-port 3100",
+    "start:web": "office-addin-debugging start manifest.xml web --app word --dev-server \"npm run dev-server\" --dev-server-port 3100",
     "stop": "office-addin-debugging stop manifest.xml",
     "certs": "office-addin-dev-certs install",
     "validate": "office-addin-manifest validate manifest.xml",
@@ -29,7 +29,8 @@
     "react": "^19.3.0",
     "react-aria-components": "^1.21.1",
     "react-dom": "^19.3.0",
-    "tailwind-merge": "^3.7.0"
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.20",

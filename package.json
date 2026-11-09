@@ -15,7 +15,7 @@
   },
   "scripts": {
     "typecheck": "npm run typecheck --workspaces",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -23,17 +23,35 @@
     "build": "npm run build --workspaces",
     "dev:addin": "npm run dev -w addin",
     "dev:server": "npm run dev -w server",
-    "start": "npm run start -w addin"
+    "start": "npm run start -w addin",
+    "prepare": "husky",
+    "knip": "knip"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "^9.39.5",
     "eslint": "^9.39.5",
+    "eslint-plugin-import-x": "^4.18.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.12.0",
+    "husky": "^9.1.7",
+    "knip": "^6.44.2",
+    "lint-staged": "^17.6.0",
     "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs}": [
+      "eslint --max-warnings 0 --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,html,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }
