@@ -1,0 +1,9 @@
+# Cloudflare Workers config. Deploy with `npx wrangler deploy`.
+# Set the key with `npx wrangler secret put ANTHROPIC_API_KEY`.
+name = "plain-language-rewrite"
+main = "src/worker.ts"
+compatibility_date = "2026-10-01"
+
+[vars]
+REWRITE_MODEL = "claude-sonnet-5-5"
+ALLOWED_ORIGINS = "https://your-addin-host.example"
