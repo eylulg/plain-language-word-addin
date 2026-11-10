@@ -22,13 +22,10 @@ const SPECIAL_CASES: Record<string, number> = {
 /**
  * Estimates syllables in an English word with a vowel-group heuristic.
  * Good enough for readability formulas, which only need averages.
- * Numbers count one syllable per digit, capped at four.
+ * A numeral counts as one syllable however many digits it has.
  */
 export function countSyllables(rawWord: string): number {
-  if (/^\d[\d.,]*%?$/.test(rawWord)) {
-    const digits = rawWord.replace(/\D/g, "").length;
-    return Math.max(1, Math.min(digits, 4));
-  }
+  if (/^\d[\d.,]*%?$/.test(rawWord)) return 1;
 
   const word = rawWord.toLowerCase().replace(/[^a-z]/g, "");
   if (word.length === 0) return 0;

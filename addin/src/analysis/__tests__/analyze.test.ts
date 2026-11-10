@@ -20,6 +20,18 @@ describe("analyzeParagraph", () => {
     expect(result.issues.every((i) => i.paragraphIndex === 3 && LEGALESE.includes(i.sentence))).toBe(true);
   });
 
+  it("stops the grade at 18 however long the sentence is", () => {
+    const sprawl = `${"The indemnification obligations notwithstanding ".repeat(30)}apply.`;
+
+    expect(analyzeParagraph(sprawl, 0).stats.gradeLevel).toBe(18);
+  });
+
+  it("does not flag the passive inside a filler phrase it already reports", () => {
+    const types = analyzeParagraph("It should be noted that fees apply.", 0).issues.map((i) => i.type);
+
+    expect(types).toEqual(["filler"]);
+  });
+
   it("does not report a jargon word again as a nominalisation", () => {
     const result = analyzeParagraph("Notice is required prior to the commencement of works.", 0);
 

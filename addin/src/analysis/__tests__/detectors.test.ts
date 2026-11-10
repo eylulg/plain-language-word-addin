@@ -25,6 +25,7 @@ describe("findPassiveVoice", () => {
     ["The keys were not returned.", ["were not returned"]],
     ["Fees are already paid.", ["are already paid"]],
     ["She is interested.", []],
+    ["The landlord shall be entitled to end it.", []],
     ["The tenant signed the form.", []],
     ["There were seven of them.", []],
   ])("finds the passives in %j", (sentence, expected) => {
@@ -43,7 +44,7 @@ describe("findPassiveVoice", () => {
 describe("findNominalisations", () => {
   it.each([
     ["We will make a decision soon.", [["decision", 'Try the verb "decide".']]],
-    ["The categorisation was slow.", [["categorisation", "Try using the verb form."]]],
+    ["Terminate the agreement and recover possession under your obligations.", []],
     ["The government sent information.", []],
     ["Payment, payment and more payment.", [["Payment", 'Try the verb "pay".']]],
   ])("finds %j", (sentence, expected) => {
@@ -58,6 +59,13 @@ describe("findJargon", () => {
       [
         ["In the event that", 'Try "if".'],
         ["prior to", 'Try "before".'],
+      ],
+    ],
+    [
+      "Pay any and all fees within thirty (30) days.",
+      [
+        ["any and all", 'Try "any or all".'],
+        ["thirty (30)", 'Try "30".'],
       ],
     ],
     ["The deemster spoke.", []],

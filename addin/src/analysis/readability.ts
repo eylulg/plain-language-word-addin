@@ -2,6 +2,9 @@ import { countSyllables } from "./syllables";
 import type { ReadabilityLabel, TextStats } from "./types";
 import { tokenizeWords } from "./words";
 
+/** Grades past this carry no meaning, so the score stops here. */
+export const MAX_GRADE = 18;
+
 const round1 = (value: number): number => Math.round(value * 10) / 10;
 
 /** Flesch Reading Ease. Higher is easier; 60 to 70 reads as plain English. */
@@ -50,7 +53,7 @@ export function statsFromCounts(counts: Counts): TextStats {
     averageSentenceLength: sentences === 0 ? 0 : round1(words / sentences),
     averageSyllablesPerWord: words === 0 ? 0 : Math.round((syllables / words) * 100) / 100,
     readingEase: round1(Math.min(121.22, Math.max(0, ease))),
-    gradeLevel: round1(Math.max(0, grade)),
+    gradeLevel: round1(Math.min(MAX_GRADE, Math.max(0, grade))),
   };
 }
 

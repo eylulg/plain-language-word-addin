@@ -4,8 +4,6 @@ import {
   FILLERS,
   IRREGULAR_PARTICIPLES,
   JARGON,
-  NOMINALISATION_EXCEPTIONS,
-  NOMINALISATION_SUFFIX,
   NOMINALISATION_VERBS,
   PARTICIPLE_EXCEPTIONS,
   PASSIVE_GAP_WORDS,
@@ -25,6 +23,8 @@ function phrasePattern(phrases: readonly string[]): RegExp {
 }
 
 const JARGON_PATTERN = phrasePattern(Object.keys(JARGON));
+/** A number spelled out and repeated in digits: "thirty (30)". */
+const NUMBER_DOUBLET_PATTERN = /(?<![\p{L}\p{N}])[\p{L}]+(?:-[\p{L}]+)?\s+\((\d[\d,.]*)\)/gu;
 const FILLER_PATTERN = phrasePattern(FILLERS);
 
 export function findLongSentence(sentence: string, maxWords: number): Finding[] {
@@ -41,7 +41,13 @@ export function findLongSentence(sentence: string, maxWords: number): Finding[] 
 }
 
 export function findJargon(sentence: string): Finding[] {
-  return [...sentence.matchAll(JARGON_PATTERN)].map((m) => {
+  const doublets = [...sentence.matchAll(NUMBER_DOUBLET_PATTERN)].map((m) => ({
+    type: "jargon" as const,
+    match: m[0],
+    message: `"${m[0]}" gives the same number twice.`,
+    suggestion: `Try "${m[1]}".`,
+  }));
+  const phrases = [...sentence.matchAll(JARGON_PATTERN)].map((m) => {
     const plain = JARGON[m[0].toLowerCase()];
     return {
       type: "jargon" as const,
@@ -50,6 +56,7 @@ export function findJargon(sentence: string): Finding[] {
       ...(plain ? { suggestion: `Try "${plain}".` } : {}),
     };
   });
+  return [...phrases, ...doublets];
 }
 
 export function findFillers(sentence: string): Finding[] {
@@ -105,18 +112,13 @@ export function findNominalisations(sentence: string): Finding[] {
     const lower = word.toLowerCase();
     const singular = lower.replace(/s$/, "");
     const verb = NOMINALISATION_VERBS[lower] ?? NOMINALISATION_VERBS[singular];
-    const bySuffix =
-      lower.length >= 8 &&
-      NOMINALISATION_SUFFIX.test(lower) &&
-      !NOMINALISATION_EXCEPTIONS.has(lower) &&
-      !NOMINALISATION_EXCEPTIONS.has(singular);
-    if ((verb === undefined && !bySuffix) || seen.has(lower)) continue;
+    if (verb === undefined || seen.has(lower)) continue;
     seen.add(lower);
     findings.push({
       type: "nominalisation",
       match: word,
       message: `"${word}" hides an action inside a noun.`,
-      suggestion: verb ? `Try the verb "${verb}".` : "Try using the verb form.",
+      suggestion: `Try the verb "${verb}".`,
     });
   }
   return findings;

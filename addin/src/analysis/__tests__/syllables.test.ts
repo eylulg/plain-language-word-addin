@@ -12,8 +12,8 @@ describe("countSyllables", () => {
     ["documentation", 5],
     ["people", 2],
     ["5", 1],
-    ["2025", 4],
-    ["1,250,000", 4],
+    ["2025", 1],
+    ["1,250,000", 1],
     ["--", 0],
   ])("counts %s as %i", (word, expected) => {
     expect(countSyllables(word)).toBe(expected);

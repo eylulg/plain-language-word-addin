@@ -34,12 +34,17 @@ export function analyzeParagraph(text: string, index: number): ParagraphAnalysis
     const nominalisations = findNominalisations(sentence.text).filter(
       (n) => !jargonText.some((j) => j.includes(n.match.toLowerCase())),
     );
+    const fillers = findFillers(sentence.text);
+    // "It should be noted that" contains a passive, but it is one filler, not two issues.
+    const passives = findPassiveVoice(sentence.text).filter(
+      (p) => !fillers.some((f) => f.match.toLowerCase().includes(p.match.toLowerCase())),
+    );
     const findings = [
       ...findLongSentence(sentence.text, LONG_SENTENCE_WORDS),
-      ...findPassiveVoice(sentence.text),
+      ...passives,
       ...nominalisations,
       ...jargon,
-      ...findFillers(sentence.text),
+      ...fillers,
     ];
     findings.forEach((finding, n) => {
       issues.push({
