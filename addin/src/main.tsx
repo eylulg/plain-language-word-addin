@@ -1,4 +1,3 @@
-import { themeStorageKey } from "@eylulg/ui/chrome";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createRewriteClient } from "@/api/rewrite-client";
@@ -7,6 +6,7 @@ import { createPreviewGateway } from "@/office/preview-gateway";
 import type { WordGateway } from "@/office/types";
 import { createWordGateway } from "@/office/word-gateway";
 import { App } from "@/taskpane/App";
+import { OfficeThemeDefault } from "@/taskpane/OfficeThemeDefault";
 import "@/styles/globals.css";
 
 function isDark(hexColor: string): boolean {
@@ -15,19 +15,12 @@ function isDark(hexColor: string): boolean {
   return channel(0) * 0.299 + channel(2) * 0.587 + channel(4) * 0.114 < 128;
 }
 
-function hasStoredTheme(): boolean {
-  try {
-    return localStorage.getItem(themeStorageKey) !== null;
-  } catch {
-    return false;
-  }
-}
-
-function render(gateway: WordGateway) {
+function render(gateway: WordGateway, officeDark?: boolean) {
   const root = document.getElementById("root");
   if (!root) throw new Error("Missing #root element.");
   createRoot(root).render(
     <StrictMode>
+      {officeDark !== undefined && <OfficeThemeDefault dark={officeDark} />}
       <GatewayProvider gateway={gateway}>
         <App client={createRewriteClient()} />
       </GatewayProvider>
@@ -46,10 +39,7 @@ if (typeof Office === "undefined") {
         return;
       }
       const background = Office.context.officeTheme?.bodyBackgroundColor;
-      if (!hasStoredTheme() && background) {
-        document.documentElement.classList.toggle("dark-mode", isDark(background));
-      }
-      render(createWordGateway());
+      render(createWordGateway(), background ? isDark(background) : undefined);
     })
     .catch(reportError);
 }

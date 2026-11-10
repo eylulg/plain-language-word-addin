@@ -25,16 +25,15 @@ export function RewritePanel({ client, settings, onInserted }: RewritePanelProps
   const [state, setState] = useState<State>({ step: "idle" });
   const [error, setError] = useState<string | null>(null);
   const requestRef = useRef<AbortController | null>(null);
-  const rewriteActionRef = useRef<HTMLDivElement>(null);
+  const rewriteActionRef = useRef<HTMLButtonElement>(null);
 
   const canTrack = gateway.supportsTrackedChanges();
   const proposal = state.step === "proposal" || state.step === "inserting" ? state : null;
 
   useEffect(() => () => requestRef.current?.abort(), []);
 
-  // The library Button does not forward a ref yet, so focus goes through its wrapper.
   function focusRewriteButton() {
-    rewriteActionRef.current?.querySelector("button")?.focus();
+    rewriteActionRef.current?.focus();
   }
 
   async function handleRewrite() {
@@ -102,17 +101,16 @@ export function RewritePanel({ client, settings, onInserted }: RewritePanelProps
       <CardHeader title="Rewrite" headingLevel={2} />
       <CardBody className="flex flex-col gap-3">
         <p className="text-tertiary">Only the paragraph with your cursor is sent to the rewrite server.</p>
-        <div ref={rewriteActionRef}>
-          <Button
-            className="w-full"
-            size="sm"
-            iconLeading={Pencil}
-            isLoading={state.step === "loading"}
-            onPress={handleRewrite}
-          >
-            Rewrite in plain language
-          </Button>
-        </div>
+        <Button
+          ref={rewriteActionRef}
+          className="w-full"
+          size="sm"
+          iconLeading={Pencil}
+          isLoading={state.step === "loading"}
+          onPress={handleRewrite}
+        >
+          Rewrite in plain language
+        </Button>
 
         {error && (
           <p role="alert" className="text-sm text-error">

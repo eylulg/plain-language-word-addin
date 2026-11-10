@@ -20,7 +20,7 @@ export function ScoreCard({ analysis, targetGrade }: ScoreCardProps) {
       <CardHeader title="Document score" headingLevel={2} />
       <CardBody className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-2">
-          <Stat label="Grade level" value={stats.gradeLevel.toFixed(1)} />
+          <Stat size="sm" label="Grade level" value={stats.gradeLevel.toFixed(1)} />
           <Badge color={onTarget ? "success" : "warning"} size="sm">
             {onTarget ? `At or below grade ${targetGrade}` : `${gap.toFixed(1)} above grade ${targetGrade}`}
           </Badge>
@@ -32,8 +32,8 @@ export function ScoreCard({ analysis, targetGrade }: ScoreCardProps) {
           tone={onTarget ? "success" : "warning"}
         />
         <div className="grid grid-cols-2 gap-3">
-          <Stat label="Words per sentence" value={stats.averageSentenceLength.toFixed(1)} />
-          <Stat label="Words" value={stats.words} />
+          <Stat size="sm" label="Words per sentence" value={stats.averageSentenceLength.toFixed(1)} />
+          <Stat size="sm" label="Words" value={stats.words} />
         </div>
         <p className="text-tertiary">
           Readability: <span className="font-medium text-secondary">{label}</span>

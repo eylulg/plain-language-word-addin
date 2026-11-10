@@ -75,6 +75,8 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
           <Textarea
             label="Protected terms"
             hint="One per line. These are kept exactly as written."
+            font="data"
+            spellCheck={false}
             rows={3}
             value={settings.protectedTerms}
             onChange={handleTermsChange}
