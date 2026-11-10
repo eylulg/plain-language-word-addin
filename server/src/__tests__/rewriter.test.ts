@@ -79,6 +79,19 @@ describe("createClaudeRewriter", () => {
     ]);
   });
 
+  it("only warns about protected terms that the original contains", async () => {
+    const { client } = fakeAnthropic({
+      parsed_output: { rewrite: "The tenant pays 1,200 euros before the 5th.", changes: [] },
+    });
+
+    const result = await createClaudeRewriter(client, testConfig()).rewrite({
+      ...request,
+      protectedTerms: ["Supplier", "clause 7.2"],
+    });
+
+    expect(result.warnings).toEqual([]);
+  });
+
   it("throws a refusal error that carries the category", async () => {
     const { client } = fakeAnthropic({
       stop_reason: "refusal",
