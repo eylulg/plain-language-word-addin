@@ -8,14 +8,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [
-      "**/dist/**",
-      "**/coverage/**",
-      "**/node_modules/**",
-      // Vendored Untitled UI components keep their upstream style.
-      "addin/src/components/base/**",
-      "addin/src/components/foundations/**",
-    ],
+    ignores: ["**/dist/**", "**/coverage/**", "**/node_modules/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.strict,

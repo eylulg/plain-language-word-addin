@@ -1,12 +1,15 @@
-import { RefreshCw01 } from "@untitledui/icons";
+import { Button } from "@eylulg/ui/button";
+import { AppShell } from "@eylulg/ui/chrome";
+import { Switch } from "@eylulg/ui/switch";
+import { RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { analyzeDocument, LONG_SENTENCE_WORDS } from "@/analysis/analyze";
 import type { DocumentAnalysis, Issue } from "@/analysis/types";
 import type { RewriteClient } from "@/api/rewrite-client";
-import { Button } from "@/components/base/buttons/button";
-import { Toggle } from "@/components/base/toggle/toggle";
 import { useGateway } from "@/office/gateway-context";
 import type { SentenceRef } from "@/office/types";
+import { AppFooter } from "./AppFooter";
+import { AppHeader } from "./AppHeader";
 import { IssueList } from "./IssueList";
 import { RewritePanel } from "./RewritePanel";
 import { ScoreCard } from "./ScoreCard";
@@ -109,52 +112,46 @@ export function App({ client }: { client: RewriteClient }) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col gap-4 bg-secondary p-4">
-      <header className="flex items-center justify-between gap-2">
-        <div>
-          <h1 className="text-lg font-semibold text-primary">Plain Language</h1>
-          {gateway.kind === "preview" && (
-            <p className="text-xs text-tertiary">Browser preview with a sample document</p>
-          )}
-        </div>
+    <AppShell header={<AppHeader isPreview={gateway.kind === "preview"} />} footer={<AppFooter />}>
+      <div className="flex flex-col gap-4">
         <Button
           size="sm"
-          color="secondary"
-          iconLeading={RefreshCw01}
+          variant="secondary"
+          iconLeading={RefreshCw}
           isLoading={busy}
-          showTextWhileLoading
-          onClick={handleAnalyse}
+          onPress={handleAnalyse}
         >
           Analyse
         </Button>
-      </header>
 
-      <p role="status" className="sr-only">
-        {status}
-      </p>
-      {error && (
-        <p role="alert" className="rounded-lg bg-error-primary p-3 text-sm text-error-primary">
-          {error}
+        <p role="status" className="sr-only">
+          {status}
         </p>
-      )}
+        {error && (
+          <p role="alert" className="rounded-lg bg-error-subtle p-3 text-sm text-error">
+            {error}
+          </p>
+        )}
 
-      {analysis && (
-        <>
-          <ScoreCard analysis={analysis} targetGrade={settings.targetGrade} />
-          <Toggle
-            size="sm"
-            label="Highlight long sentences"
-            hint={`${longSentences.length} over ${LONG_SENTENCE_WORDS} words`}
-            isSelected={highlighted}
-            isDisabled={!highlighted && longSentences.length === 0}
-            onChange={handleHighlightChange}
-          />
-          <RewritePanel client={client} settings={settings} onInserted={handleAnalyse} />
-          <IssueList paragraphs={analysis.paragraphs} onSelect={handleSelectIssue} />
-        </>
-      )}
+        {analysis && (
+          <>
+            <ScoreCard analysis={analysis} targetGrade={settings.targetGrade} />
+            <Switch
+              size="sm"
+              hint={`${longSentences.length} over ${LONG_SENTENCE_WORDS} words`}
+              isSelected={highlighted}
+              isDisabled={!highlighted && longSentences.length === 0}
+              onChange={handleHighlightChange}
+            >
+              Highlight long sentences
+            </Switch>
+            <RewritePanel client={client} settings={settings} onInserted={handleAnalyse} />
+            <IssueList paragraphs={analysis.paragraphs} onSelect={handleSelectIssue} />
+          </>
+        )}
 
-      <SettingsPanel settings={settings} onChange={updateSettings} />
-    </main>
+        <SettingsPanel settings={settings} onChange={updateSettings} />
+      </div>
+    </AppShell>
   );
 }

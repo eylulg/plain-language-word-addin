@@ -1,3 +1,4 @@
+import { themeStorageKey } from "@eylulg/ui/chrome";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createRewriteClient } from "@/api/rewrite-client";
@@ -12,6 +13,14 @@ function isDark(hexColor: string): boolean {
   const hex = hexColor.replace("#", "");
   const channel = (start: number) => parseInt(hex.slice(start, start + 2), 16);
   return channel(0) * 0.299 + channel(2) * 0.587 + channel(4) * 0.114 < 128;
+}
+
+function hasStoredTheme(): boolean {
+  try {
+    return localStorage.getItem(themeStorageKey) !== null;
+  } catch {
+    return false;
+  }
 }
 
 function render(gateway: WordGateway) {
@@ -37,7 +46,9 @@ if (typeof Office === "undefined") {
         return;
       }
       const background = Office.context.officeTheme?.bodyBackgroundColor;
-      document.documentElement.classList.toggle("dark-mode", background ? isDark(background) : false);
+      if (!hasStoredTheme() && background) {
+        document.documentElement.classList.toggle("dark-mode", isDark(background));
+      }
       render(createWordGateway());
     })
     .catch(reportError);

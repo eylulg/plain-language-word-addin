@@ -1,6 +1,8 @@
+import { Badge } from "@eylulg/ui/badge";
+import { Card, CardBody, CardHeader } from "@eylulg/ui/card";
+import { ProgressBar } from "@eylulg/ui/progress-bar";
+import { Stat } from "@eylulg/ui/stat";
 import { ISSUE_LABELS, ISSUE_TYPES, type DocumentAnalysis } from "@/analysis/types";
-import { Badge } from "@/components/base/badges/badges";
-import { CARD } from "./styles";
 
 interface ScoreCardProps {
   analysis: DocumentAnalysis;
@@ -11,49 +13,41 @@ export function ScoreCard({ analysis, targetGrade }: ScoreCardProps) {
   const { stats, issueCounts, label } = analysis;
   const gap = Math.round((stats.gradeLevel - targetGrade) * 10) / 10;
   const onTarget = gap <= 0;
+  const readingEase = Math.min(100, Math.max(0, Math.round(stats.readingEase)));
 
   return (
-    <section aria-labelledby="score-heading" className={`${CARD} p-4`}>
-      <h2 id="score-heading" className="text-sm font-semibold text-secondary">
-        Document score
-      </h2>
-      <div className="mt-2 flex items-end justify-between gap-3">
-        <p className="flex items-baseline gap-1.5">
-          <span className="text-display-xs font-semibold text-primary">{stats.gradeLevel.toFixed(1)}</span>
-          <span className="text-sm text-tertiary">grade level</span>
+    <Card role="region" aria-label="Document score">
+      <CardHeader title="Document score" headingLevel={2} />
+      <CardBody className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <Stat label="Grade level" value={stats.gradeLevel.toFixed(1)} />
+          <Badge color={onTarget ? "success" : "warning"} size="sm">
+            {onTarget ? `At or below grade ${targetGrade}` : `${gap.toFixed(1)} above grade ${targetGrade}`}
+          </Badge>
+        </div>
+        <ProgressBar
+          label="Reading ease"
+          value={readingEase}
+          size="sm"
+          tone={onTarget ? "success" : "warning"}
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <Stat label="Words per sentence" value={stats.averageSentenceLength.toFixed(1)} />
+          <Stat label="Words" value={stats.words} />
+        </div>
+        <p className="text-tertiary">
+          Readability: <span className="font-medium text-secondary">{label}</span>
         </p>
-        <Badge type="pill-color" color={onTarget ? "success" : "warning"} size="sm">
-          {onTarget ? `At or below grade ${targetGrade}` : `${gap.toFixed(1)} above grade ${targetGrade}`}
-        </Badge>
-      </div>
-
-      <dl className="mt-4 grid grid-cols-3 gap-3">
-        <Stat label="Reading ease" value={stats.readingEase.toFixed(0)} />
-        <Stat label="Words per sentence" value={stats.averageSentenceLength.toFixed(1)} />
-        <Stat label="Words" value={stats.words} />
-      </dl>
-      <p className="mt-3 text-sm text-tertiary">
-        Readability: <span className="font-medium text-secondary">{label}</span>
-      </p>
-
-      <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Issues by type">
-        {ISSUE_TYPES.map((type) => (
-          <li key={type}>
-            <Badge type="color" size="sm" color={issueCounts[type] > 0 ? "brand" : "gray"}>
-              {ISSUE_LABELS[type]}: {issueCounts[type]}
-            </Badge>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="flex flex-col">
-      <dt className="text-xs text-tertiary">{label}</dt>
-      <dd className="text-sm font-semibold text-primary">{value}</dd>
-    </div>
+        <ul className="flex flex-wrap gap-1.5" aria-label="Issues by type">
+          {ISSUE_TYPES.map((type) => (
+            <li key={type}>
+              <Badge size="sm" color={issueCounts[type] > 0 ? "brand" : "gray"}>
+                {ISSUE_LABELS[type]}: {issueCounts[type]}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+      </CardBody>
+    </Card>
   );
 }

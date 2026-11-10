@@ -2,7 +2,3 @@ node_modules
 dist
 coverage
 package-lock.json
-addin/src/components/base
-addin/src/components/foundations
-addin/src/styles/theme.css
-addin/src/styles/typography.css

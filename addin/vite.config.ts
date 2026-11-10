@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { themeInitScript } from "@eylulg/ui/theme-script";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type ServerOptions } from "vite";
@@ -18,9 +19,20 @@ async function httpsOptions(): Promise<ServerOptions["https"]> {
 export default defineConfig(async ({ command }) => {
   const needsHttps = command === "serve" && !process.env.VITEST;
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: "theme-init",
+        transformIndexHtml: () => [
+          { tag: "script" as const, children: themeInitScript, injectTo: "head-prepend" as const },
+        ],
+      },
+    ],
     resolve: {
       alias: { "@": `${root}src` },
+      // The linked library resolves to ../ui, which has its own copies of these packages.
+      dedupe: ["react", "react-dom", "react-aria-components", "lucide-react"],
     },
     server: {
       port: 3100,

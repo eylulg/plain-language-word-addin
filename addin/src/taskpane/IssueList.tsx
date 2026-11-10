@@ -1,6 +1,7 @@
+import { Badge } from "@eylulg/ui/badge";
+import { Card, CardBody, CardHeader } from "@eylulg/ui/card";
 import { countIssues } from "@/analysis/analyze";
 import { ISSUE_LABELS, ISSUE_TYPES, type Issue, type ParagraphAnalysis } from "@/analysis/types";
-import { CARD } from "./styles";
 
 interface IssueListProps {
   paragraphs: readonly ParagraphAnalysis[];
@@ -30,22 +31,17 @@ export function IssueList({ paragraphs, onSelect }: IssueListProps) {
       </h2>
       {withIssues.length === 0 && <p className="text-sm text-tertiary">No issues found. Nice and plain.</p>}
       {withIssues.map((paragraph) => (
-        <section
-          key={paragraph.index}
-          aria-labelledby={`paragraph-${paragraph.index}-heading`}
-          className={`${CARD} p-3`}
-        >
-          <h3 id={`paragraph-${paragraph.index}-heading`} className="text-sm font-semibold text-primary">
-            Paragraph {paragraph.index + 1}
-          </h3>
-          <p className="mt-0.5 text-xs text-tertiary">{summary(paragraph.issues)}</p>
-          <p className="mt-1 text-xs text-quaternary italic">{preview(paragraph.text)}</p>
-          <ul className="mt-2 flex flex-col gap-1">
-            {paragraph.issues.map((issue) => (
-              <IssueItem key={issue.id} issue={issue} onSelect={onSelect} />
-            ))}
-          </ul>
-        </section>
+        <Card key={paragraph.index} role="region" aria-label={`Paragraph ${paragraph.index + 1}`}>
+          <CardHeader title={`Paragraph ${paragraph.index + 1}`} description={summary(paragraph.issues)} />
+          <CardBody className="flex flex-col gap-2">
+            <p className="text-xs text-tertiary italic">{preview(paragraph.text)}</p>
+            <ul className="flex flex-col gap-1">
+              {paragraph.issues.map((issue) => (
+                <IssueItem key={issue.id} issue={issue} onSelect={onSelect} />
+              ))}
+            </ul>
+          </CardBody>
+        </Card>
       ))}
     </section>
   );
@@ -53,15 +49,6 @@ export function IssueList({ paragraphs, onSelect }: IssueListProps) {
 
 function IssueItem({ issue, onSelect }: { issue: Issue; onSelect: (issue: Issue) => void }) {
   const label = ISSUE_LABELS[issue.type];
-  // Two paragraphs can share an issue text, so the position keeps every button name unique.
-  const accessibleName = [
-    `${label} in paragraph ${issue.paragraphIndex + 1}, sentence ${issue.sentenceIndex + 1}:`,
-    issue.message,
-    issue.suggestion,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
   function handleClick() {
     onSelect(issue);
   }
@@ -70,12 +57,17 @@ function IssueItem({ issue, onSelect }: { issue: Issue; onSelect: (issue: Issue)
     <li>
       <button
         type="button"
-        aria-label={accessibleName}
         onClick={handleClick}
-        className="w-full rounded-lg px-2 py-1.5 text-left outline-focus-ring transition hover:bg-primary_hover focus-visible:outline-2"
+        className="flex w-full flex-col items-start gap-1 rounded-lg px-2 py-1.5 text-left hover:bg-hover focus-visible:outline-2 focus-visible:outline-focus"
       >
-        <span className="block text-xs font-semibold text-brand-secondary">{label}</span>
-        <span className="block text-sm text-secondary">{issue.message}</span>
+        <Badge size="sm" color="brand">
+          {label}
+        </Badge>{" "}
+        {/* Two paragraphs can share an issue text, so the position keeps every button name unique. */}
+        <span className="sr-only">
+          {`in paragraph ${issue.paragraphIndex + 1}, sentence ${issue.sentenceIndex + 1}:`}
+        </span>{" "}
+        <span className="block text-sm text-secondary">{issue.message}</span>{" "}
         {issue.suggestion && <span className="block text-xs text-tertiary">{issue.suggestion}</span>}
       </button>
     </li>

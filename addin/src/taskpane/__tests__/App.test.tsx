@@ -31,6 +31,11 @@ async function requestRewrite(user: ReturnType<typeof userEvent.setup>) {
   await user.click(await screen.findByRole("button", { name: "Rewrite in plain language" }));
 }
 
+async function choose(user: ReturnType<typeof userEvent.setup>, field: RegExp, option: string | RegExp) {
+  await user.click(screen.getByRole("button", { name: field }));
+  await user.click(await screen.findByRole("option", { name: option }));
+}
+
 beforeEach(() => {
   localStorage.clear();
 });
@@ -104,9 +109,9 @@ describe("App", () => {
     await screen.findByRole("region", { name: "Document score" });
 
     await user.click(screen.getByText("Settings"));
-    await user.selectOptions(screen.getByLabelText(/^Target grade level/), "6");
-    await user.selectOptions(screen.getByLabelText(/^Tone/), "friendly");
-    await user.selectOptions(screen.getByLabelText(/^Model/), "claude-haiku-5-5");
+    await choose(user, /Target grade level/, "Grade 6");
+    await choose(user, /Tone/, "Friendly");
+    await choose(user, /Model/, /Haiku/);
     await user.type(screen.getByLabelText(/^Protected terms/), "Landlord{enter}Schedule 2");
     await requestRewrite(user);
 
