@@ -15,15 +15,20 @@ function isDark(hexColor: string): boolean {
   return channel(0) * 0.299 + channel(2) * 0.587 + channel(4) * 0.114 < 128;
 }
 
-function render(gateway: WordGateway, officeDark?: boolean) {
+function readOfficeDark(): boolean | undefined {
+  const background = Office.context.officeTheme?.bodyBackgroundColor;
+  return background ? isDark(background) : undefined;
+}
+
+function render(gateway: WordGateway, followOffice = false) {
   const root = document.getElementById("root");
   if (!root) throw new Error("Missing #root element.");
   createRoot(root).render(
     <StrictMode>
-      {officeDark !== undefined && <OfficeThemeDefault dark={officeDark} />}
       <GatewayProvider gateway={gateway}>
         <App client={createRewriteClient()} />
       </GatewayProvider>
+      {followOffice && <OfficeThemeDefault readDark={readOfficeDark} />}
     </StrictMode>,
   );
 }
@@ -38,8 +43,7 @@ if (typeof Office === "undefined") {
         render(createPreviewGateway());
         return;
       }
-      const background = Office.context.officeTheme?.bodyBackgroundColor;
-      render(createWordGateway(), background ? isDark(background) : undefined);
+      render(createWordGateway(), true);
     })
     .catch(reportError);
 }
