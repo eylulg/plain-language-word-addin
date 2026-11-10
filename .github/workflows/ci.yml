@@ -22,7 +22,16 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      - uses: actions/checkout@v4
+        with:
+          repository: eylulg/ui
+          path: ui-src
+      - name: Build the design system
+        run: npm ci && npm run build
+        working-directory: ui-src
+      - name: Point the dependency at the checkout
+        run: npm pkg set dependencies.@eylulg/ui=file:./ui-src --workspaces=false && npm pkg set dependencies.@eylulg/ui=file:../ui-src -w addin
+      - run: npm install --no-audit --no-fund
       - name: Typecheck
         run: npm run typecheck
       - name: Lint

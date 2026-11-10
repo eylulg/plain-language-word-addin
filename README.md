@@ -19,7 +19,7 @@ _Screenshot placeholder: add `docs/screenshots/taskpane.png` after recording the
 ## Architecture
 
 ```
-addin/                      Word task pane (Vite 7, React 19, TypeScript strict, Tailwind CSS 4, Untitled UI)
+addin/                      Word task pane (Vite 7, React 19, TypeScript strict, Tailwind CSS 4, @eylulg/ui)
   manifest.xml              XML add-in manifest: task pane, Home tab button, icons
   src/analysis/             Readability engine. Pure TypeScript, no Office dependency
   src/office/               Typed wrapper around Word.run, plus a browser preview stand-in
@@ -95,3 +95,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint, format check, tests, build
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+## Design system
+
+The add-in uses [`@eylulg/ui`](https://github.com/eylulg/ui) with the `plain-language` theme variant. It is installed as `file:../ui`, so clone `ui` next to this repo and build it (`npm install && npm run build`) before `npm install` here. CI checks `eylulg/ui` out to `ui-src`, builds it and points the dependency there for that run only. Once the library is published the dependency becomes `^1.0.0` and the checkout steps go away. Vercel deploys need that publish.
