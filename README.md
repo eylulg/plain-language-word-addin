@@ -2,10 +2,6 @@
 
 A Microsoft Word add-in that scores how readable a document is, points to the sentences that make it hard, and rewrites a paragraph in plain language with Claude. The rewrite goes into the document as a tracked change, so the author stays in control: accept it, reject it, or edit it like any other suggestion.
 
-![Task pane screenshot](docs/screenshots/taskpane.png)
-
-_Screenshot placeholder: add `docs/screenshots/taskpane.png` after recording the demo (see [docs/demo.md](docs/demo.md))._
-
 ## What it does
 
 - **Document score.** Flesch-Kincaid grade, Flesch Reading Ease, words per sentence and a readability label, compared with the target grade you choose.
