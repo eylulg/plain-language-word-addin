@@ -1,5 +1,5 @@
 import { Badge } from "@eylulg/ui/badge";
-import { Card, CardBody, CardHeader } from "@eylulg/ui/card";
+import { Card, CardBody } from "@eylulg/ui/card";
 import { countIssues } from "@/analysis/analyze";
 import { ISSUE_LABELS, ISSUE_TYPES, type Issue, type ParagraphAnalysis } from "@/analysis/types";
 
@@ -30,17 +30,22 @@ export function IssueList({ paragraphs, onSelect }: IssueListProps) {
         Issues by paragraph
       </h2>
       {withIssues.length === 0 && <p className="text-sm text-tertiary">No issues found. Nice and plain.</p>}
-      {withIssues.map((paragraph) => (
+      {withIssues.map((paragraph, position) => (
         <Card key={paragraph.index} role="region" aria-label={`Paragraph ${paragraph.index + 1}`}>
-          <CardHeader title={`Paragraph ${paragraph.index + 1}`} description={summary(paragraph.issues)} />
-          <CardBody className="flex flex-col gap-2">
-            <p className="text-xs text-tertiary italic">{preview(paragraph.text)}</p>
-            <ul className="flex flex-col gap-1">
-              {paragraph.issues.map((issue) => (
-                <IssueItem key={issue.id} issue={issue} onSelect={onSelect} />
-              ))}
-            </ul>
-          </CardBody>
+          <details open={position === 0}>
+            <summary className="cursor-pointer rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
+              <span className="text-sm font-semibold text-primary">{`Paragraph ${paragraph.index + 1}`}</span>
+              <span className="block text-xs text-tertiary">{summary(paragraph.issues)}</span>
+            </summary>
+            <CardBody className="mt-3 flex flex-col gap-2">
+              <p className="text-xs text-tertiary italic">{preview(paragraph.text)}</p>
+              <ul className="flex flex-col gap-1">
+                {paragraph.issues.map((issue) => (
+                  <IssueItem key={issue.id} issue={issue} onSelect={onSelect} />
+                ))}
+              </ul>
+            </CardBody>
+          </details>
         </Card>
       ))}
     </section>

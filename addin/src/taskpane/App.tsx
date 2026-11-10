@@ -133,6 +133,8 @@ export function App({ client }: { client: RewriteClient }) {
           </p>
         )}
 
+        {!analysis && busy && <div aria-hidden className="min-h-[41rem]" data-reserve="results" />}
+
         {analysis && (
           <>
             <ScoreCard analysis={analysis} targetGrade={settings.targetGrade} />
@@ -146,11 +148,12 @@ export function App({ client }: { client: RewriteClient }) {
               Highlight long sentences
             </Switch>
             <RewritePanel client={client} settings={settings} onInserted={handleAnalyse} />
+            <SettingsPanel settings={settings} onChange={updateSettings} />
             <IssueList paragraphs={analysis.paragraphs} onSelect={handleSelectIssue} />
           </>
         )}
 
-        <SettingsPanel settings={settings} onChange={updateSettings} />
+        {!analysis && <SettingsPanel settings={settings} onChange={updateSettings} />}
       </div>
     </AppShell>
   );

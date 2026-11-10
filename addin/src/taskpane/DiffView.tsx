@@ -8,7 +8,7 @@ export function DiffView({ before, after }: { before: string; after: string }) {
       {parts.map((part, i) => {
         if (part.op === "insert") {
           return (
-            <ins key={i} className="rounded-sm bg-success-subtle text-success">
+            <ins key={i} className="font-medium text-success underline decoration-2 underline-offset-2">
               <span className="sr-only">added: </span>
               {part.text}
             </ins>
@@ -16,7 +16,7 @@ export function DiffView({ before, after }: { before: string; after: string }) {
         }
         if (part.op === "delete") {
           return (
-            <del key={i} className="rounded-sm bg-error-subtle text-error">
+            <del key={i} className="text-error line-through">
               <span className="sr-only">removed: </span>
               {part.text}
             </del>

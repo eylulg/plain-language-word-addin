@@ -191,6 +191,18 @@ describe("App", () => {
     expect(await screen.findByRole("button", { name: "Insert as tracked change" })).toBeDisabled();
   });
 
+  it("says the paragraph is already plain and offers no insert when the rewrite is unchanged", async () => {
+    const { user } = renderApp(createFakeGateway(), () =>
+      Response.json({ ...REWRITE, rewrite: `${LONG_PARAGRAPH}  `, changes: [] }),
+    );
+
+    await requestRewrite(user);
+
+    expect(await screen.findByText("Already plain, nothing to change.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Insert as tracked change" })).toBeDisabled();
+    expect(screen.queryByText("Rewrite ready. Review the changes below.")).not.toBeInTheDocument();
+  });
+
   it("labels rewrites from the demo server", async () => {
     const { user } = renderApp(createFakeGateway(), () => Response.json({ ...REWRITE, demo: true }));
 

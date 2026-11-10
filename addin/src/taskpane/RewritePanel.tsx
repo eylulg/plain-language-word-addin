@@ -20,6 +20,8 @@ type State =
   | { step: "idle" | "loading" | "done" }
   | { step: "proposal" | "inserting"; paragraph: SelectedParagraph; result: RewriteResult };
 
+const normalise = (text: string) => text.replace(/\s+/g, " ").trim();
+
 export function RewritePanel({ client, settings, onInserted }: RewritePanelProps) {
   const gateway = useGateway();
   const [state, setState] = useState<State>({ step: "idle" });
@@ -29,6 +31,9 @@ export function RewritePanel({ client, settings, onInserted }: RewritePanelProps
 
   const canTrack = gateway.supportsTrackedChanges();
   const proposal = state.step === "proposal" || state.step === "inserting" ? state : null;
+
+  const unchanged =
+    proposal !== null && normalise(proposal.result.rewrite) === normalise(proposal.paragraph.text);
 
   useEffect(() => () => requestRef.current?.abort(), []);
 
@@ -119,22 +124,25 @@ export function RewritePanel({ client, settings, onInserted }: RewritePanelProps
         )}
 
         <p role="status" className="text-sm text-success empty:hidden">
-          {state.step === "proposal" && "Rewrite ready. Review the changes below."}
+          {state.step === "proposal" &&
+            (unchanged ? "Already plain, nothing to change." : "Rewrite ready. Review the changes below.")}
           {state.step === "done" && "Inserted as a tracked change. Accept or reject it in the Review tab."}
         </p>
 
         {proposal && (
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-primary">Proposed rewrite</h3>
+              <h3 className="text-sm font-semibold text-primary">
+                {unchanged ? "Rewrite result" : "Proposed rewrite"}
+              </h3>
               {proposal.result.demo && (
                 <Badge color="warning" size="sm">
                   Demo mode
                 </Badge>
               )}
             </div>
-            <DiffView before={proposal.paragraph.text} after={proposal.result.rewrite} />
-            {proposal.result.changes.length > 0 && (
+            {!unchanged && <DiffView before={proposal.paragraph.text} after={proposal.result.rewrite} />}
+            {!unchanged && proposal.result.changes.length > 0 && (
               <>
                 <h4 className="text-xs font-semibold text-secondary">What changed</h4>
                 <ul className="list-disc pl-5 text-sm text-secondary">
@@ -155,7 +163,7 @@ export function RewritePanel({ client, settings, onInserted }: RewritePanelProps
               <Button
                 size="sm"
                 className="flex-1"
-                isDisabled={!canTrack}
+                isDisabled={!canTrack || unchanged}
                 isLoading={state.step === "inserting"}
                 onPress={handleInsert}
               >
