@@ -98,4 +98,4 @@ MIT, see [LICENSE](LICENSE).
 
 ## Design system
 
-The add-in uses [`@eylulg/ui`](https://github.com/eylulg/ui) with the `plain-language` theme variant. It is installed as `file:../ui`, so clone `ui` next to this repo and build it (`npm install && npm run build`) before `npm install` here. CI checks `eylulg/ui` out to `ui-src`, builds it and points the dependency there for that run only. Once the library is published the dependency becomes `^1.0.0` and the checkout steps go away. Vercel deploys need that publish.
+The add-in uses [`@eylulg/ui`](https://github.com/eylulg/ui) with the `plain-language` theme variant. It is installed as a copy of `../ui` (`npm install ../ui --install-links` at the workspace root; `npm run relink` does the same after the library is rebuilt), so clone `ui` next to this repo and build it (`npm install && npm run build`) before `npm install` here. CI checks `eylulg/ui` out to `ui-src`, builds it and points the dependency there for that run only. Once the library is published the dependency becomes `^1.0.0` and the checkout steps go away. Vercel deploys need that publish.

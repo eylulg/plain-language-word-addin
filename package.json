@@ -24,6 +24,7 @@
     "dev:addin": "npm run dev -w addin",
     "dev:server": "npm run dev -w server",
     "start": "npm run start -w addin",
+    "relink": "npm install ../ui --install-links",
     "prepare": "husky",
     "knip": "knip"
   },
