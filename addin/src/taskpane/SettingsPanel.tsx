@@ -1,9 +1,9 @@
-import { Card, CardBody } from "@eylulg/ui/card";
-import { Select, SelectItem } from "@eylulg/ui/select";
-import { Textarea } from "@eylulg/ui/textarea";
-import type { Key } from "react-aria-components";
-import { TONES } from "@/api/rewrite-client";
-import { MODEL_OPTIONS, type Settings } from "./settings";
+import { Card, CardBody } from '@eylulg/ui/card';
+import { Select, SelectItem } from '@eylulg/ui/select';
+import { Textarea } from '@eylulg/ui/textarea';
+import type { Key } from 'react-aria-components';
+import { TONES } from '@/api/rewrite-client';
+import { MODEL_OPTIONS, type Settings } from './settings';
 
 interface SettingsPanelProps {
   settings: Settings;
@@ -12,7 +12,7 @@ interface SettingsPanelProps {
 
 const GRADE_OPTIONS = Array.from({ length: 9 }, (_, i) => ({
   value: String(i + 5),
-  label: i + 5 === 8 ? "Grade 8 (recommended)" : `Grade ${i + 5}`,
+  label: i + 5 === 8 ? 'Grade 8 (recommended)' : `Grade ${i + 5}`,
 }));
 
 const TONE_OPTIONS = TONES.map((tone) => ({
@@ -44,12 +44,12 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
   return (
     <Card>
       <details>
-        <summary className="cursor-pointer rounded-xs text-sm font-semibold text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
+        <summary className='cursor-pointer rounded-xs text-sm font-semibold text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'>
           Settings
         </summary>
-        <CardBody className="mt-3 flex flex-col gap-4">
+        <CardBody className='mt-3 flex flex-col gap-4'>
           <Select
-            label="Target grade level"
+            label='Target grade level'
             selectedKey={String(settings.targetGrade)}
             onSelectionChange={handleGradeChange}
             items={GRADE_OPTIONS}
@@ -57,7 +57,7 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
             {(option) => <SelectItem id={option.value}>{option.label}</SelectItem>}
           </Select>
           <Select
-            label="Tone"
+            label='Tone'
             selectedKey={settings.tone}
             onSelectionChange={handleToneChange}
             items={TONE_OPTIONS}
@@ -65,7 +65,7 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
             {(option) => <SelectItem id={option.value}>{option.label}</SelectItem>}
           </Select>
           <Select
-            label="Model"
+            label='Model'
             selectedKey={settings.model}
             onSelectionChange={handleModelChange}
             items={MODEL_SELECT_OPTIONS}
@@ -73,9 +73,9 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
             {(option) => <SelectItem id={option.value}>{option.label}</SelectItem>}
           </Select>
           <Textarea
-            label="Protected terms"
-            hint="One per line. These are kept exactly as written."
-            font="data"
+            label='Protected terms'
+            hint='One per line. These are kept exactly as written.'
+            font='data'
             spellCheck={false}
             rows={3}
             value={settings.protectedTerms}

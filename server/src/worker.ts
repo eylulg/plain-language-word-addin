@@ -1,7 +1,7 @@
 // Cloudflare Workers entry. Secrets and vars arrive on `env`, not process.env.
-import type { Hono } from "hono";
-import { createApp } from "./app.js";
-import { loadConfig, type Env } from "./config.js";
+import type { Hono } from 'hono';
+import { createApp } from './app.js';
+import { loadConfig, type Env } from './config.js';
 
 let app: Hono | undefined;
 

@@ -1,4 +1,4 @@
-type DiffOp = "equal" | "insert" | "delete";
+type DiffOp = 'equal' | 'insert' | 'delete';
 
 interface DiffPart {
   op: DiffOp;
@@ -40,21 +40,21 @@ export function diffWords(before: string, after: string): DiffPart[] {
   let i = 0;
   let j = 0;
   while (i < a.length && j < b.length) {
-    const tokenA = a[i] ?? "";
-    const tokenB = b[j] ?? "";
+    const tokenA = a[i] ?? '';
+    const tokenB = b[j] ?? '';
     if (tokenA === tokenB) {
-      push("equal", tokenA);
+      push('equal', tokenA);
       i += 1;
       j += 1;
     } else if ((table[(i + 1) * cols + j] ?? 0) >= (table[i * cols + j + 1] ?? 0)) {
-      push("delete", tokenA);
+      push('delete', tokenA);
       i += 1;
     } else {
-      push("insert", tokenB);
+      push('insert', tokenB);
       j += 1;
     }
   }
-  while (i < a.length) push("delete", a[i++] ?? "");
-  while (j < b.length) push("insert", b[j++] ?? "");
+  while (i < a.length) push('delete', a[i++] ?? '');
+  while (j < b.length) push('insert', b[j++] ?? '');
   return parts;
 }

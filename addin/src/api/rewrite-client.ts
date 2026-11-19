@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const TONES = ["neutral", "friendly", "formal"] as const;
+export const TONES = ['neutral', 'friendly', 'formal'] as const;
 type Tone = (typeof TONES)[number];
 
 export interface RewriteRequest {
@@ -30,7 +30,7 @@ export class RewriteError extends Error {
     readonly status?: number,
   ) {
     super(message);
-    this.name = "RewriteError";
+    this.name = 'RewriteError';
   }
 }
 
@@ -39,42 +39,44 @@ export interface RewriteClient {
 }
 
 const STATUS_MESSAGES: Partial<Record<number, string>> = {
-  413: "That paragraph is too long to rewrite in one go. Split it first.",
-  422: "The model declined to rewrite this paragraph. Try rewording it yourself.",
-  429: "Too many rewrites in a short time. Wait a minute and try again.",
+  413: 'That paragraph is too long to rewrite in one go. Split it first.',
+  422: 'The model declined to rewrite this paragraph. Try rewording it yourself.',
+  429: 'Too many rewrites in a short time. Wait a minute and try again.',
 };
 
 export function createRewriteClient(
-  baseUrl: string = import.meta.env.VITE_REWRITE_API_URL ?? "https://localhost:8787",
+  baseUrl: string = import.meta.env.VITE_REWRITE_API_URL ?? 'https://localhost:8787',
   fetchImpl: typeof fetch = fetch,
 ): RewriteClient {
-  const endpoint = `${baseUrl.replace(/\/+$/, "")}/rewrite`;
+  const endpoint = `${baseUrl.replace(/\/+$/, '')}/rewrite`;
   return {
     async rewrite(request, signal) {
       let response: Response;
       try {
         response = await fetchImpl(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(request),
           signal,
         });
       } catch (error) {
         if (signal?.aborted) throw error;
-        throw new RewriteError("Could not reach the rewrite server. Check your connection and try again.");
+        throw new RewriteError(
+          'Could not reach the rewrite server. Check your connection and try again.',
+        );
       }
 
       const body: unknown = await response.json().catch(() => null);
       if (!response.ok) {
         const serverMessage = ErrorBodySchema.safeParse(body).data?.error;
         throw new RewriteError(
-          STATUS_MESSAGES[response.status] ?? serverMessage ?? "The rewrite failed. Try again.",
+          STATUS_MESSAGES[response.status] ?? serverMessage ?? 'The rewrite failed. Try again.',
           response.status,
         );
       }
       const result = RewriteResultSchema.safeParse(body);
       if (!result.success)
-        throw new RewriteError("The rewrite server sent an unexpected response. Try again.");
+        throw new RewriteError('The rewrite server sent an unexpected response. Try again.');
       return result.data;
     },
   };

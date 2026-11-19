@@ -1,8 +1,8 @@
 // Generates the add-in icons as PNG files without any image tooling.
 // The icon is a rounded square with three text lines of falling length,
 // the last one ending in a check mark shape: "plain text".
-import { writeFileSync } from "node:fs";
-import { deflateSync } from "node:zlib";
+import { writeFileSync } from 'node:fs';
+import { deflateSync } from 'node:zlib';
 
 const SIZES = [16, 32, 64, 80, 128];
 const BRAND = [0x7f, 0x56, 0xd9];
@@ -23,7 +23,7 @@ function crc32(buffer) {
 function chunk(type, data) {
   const length = Buffer.alloc(4);
   length.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type, "ascii"), data]);
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
   const crc = Buffer.alloc(4);
   crc.writeUInt32BE(crc32(body));
   return Buffer.concat([length, body, crc]);
@@ -49,9 +49,9 @@ function png(size, pixel) {
   header[9] = 6; // RGBA
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    chunk("IHDR", header),
-    chunk("IDAT", deflateSync(raw)),
-    chunk("IEND", Buffer.alloc(0)),
+    chunk('IHDR', header),
+    chunk('IDAT', deflateSync(raw)),
+    chunk('IEND', Buffer.alloc(0)),
   ]);
 }
 
@@ -80,7 +80,10 @@ function iconPixel(size) {
       const [px, py, qx, qy] = [s(ax), s(ay), s(bx), s(by)];
       const t = Math.max(
         0,
-        Math.min(1, ((x - px) * (qx - px) + (y - py) * (qy - py)) / ((qx - px) ** 2 + (qy - py) ** 2)),
+        Math.min(
+          1,
+          ((x - px) * (qx - px) + (y - py) * (qy - py)) / ((qx - px) ** 2 + (qy - py) ** 2),
+        ),
       );
       return Math.hypot(x - (px + t * (qx - px)), y - (py + t * (qy - py))) <= thickness / 2;
     };

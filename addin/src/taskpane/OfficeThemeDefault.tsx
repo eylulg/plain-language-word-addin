@@ -1,5 +1,5 @@
-import { useTheme } from "@eylulg/ui/chrome";
-import { useEffect, useState } from "react";
+import { useTheme } from '@eylulg/ui/chrome';
+import { useEffect, useState } from 'react';
 
 interface OfficeThemeDefaultProps {
   /** Whether Word's current theme is dark, or undefined when Word does not report one. */
@@ -17,17 +17,17 @@ export function OfficeThemeDefault({ readDark }: OfficeThemeDefaultProps) {
 
   useEffect(() => {
     const refresh = () => setDark(readDark());
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
     return () => {
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
     };
   }, [readDark]);
 
   useEffect(() => {
-    if (theme !== "system" || dark === undefined) return;
-    document.documentElement.classList.toggle("dark-mode", dark);
+    if (theme !== 'system' || dark === undefined) return;
+    document.documentElement.classList.toggle('dark-mode', dark);
   }, [theme, dark]);
 
   return null;

@@ -1,6 +1,6 @@
-import { countSyllables } from "./syllables";
-import type { ReadabilityLabel, TextStats } from "./types";
-import { tokenizeWords } from "./words";
+import { countSyllables } from './syllables';
+import type { ReadabilityLabel, TextStats } from './types';
+import { tokenizeWords } from './words';
 
 /** Grades past this carry no meaning, so the score stops here. */
 export const MAX_GRADE = 18;
@@ -58,11 +58,11 @@ export function statsFromCounts(counts: Counts): TextStats {
 }
 
 export function readabilityLabel(readingEase: number): ReadabilityLabel {
-  if (readingEase >= 90) return "Very easy";
-  if (readingEase >= 80) return "Easy";
-  if (readingEase >= 70) return "Fairly easy";
-  if (readingEase >= 60) return "Plain English";
-  if (readingEase >= 50) return "Fairly difficult";
-  if (readingEase >= 30) return "Difficult";
-  return "Very difficult";
+  if (readingEase >= 90) return 'Very easy';
+  if (readingEase >= 80) return 'Easy';
+  if (readingEase >= 70) return 'Fairly easy';
+  if (readingEase >= 60) return 'Plain English';
+  if (readingEase >= 50) return 'Fairly difficult';
+  if (readingEase >= 30) return 'Difficult';
+  return 'Very difficult';
 }

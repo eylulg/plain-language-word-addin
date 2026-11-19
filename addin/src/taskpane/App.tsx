@@ -1,23 +1,23 @@
-import { Button } from "@eylulg/ui/button";
-import { AppShell } from "@eylulg/ui/chrome";
-import { Switch } from "@eylulg/ui/switch";
-import { RefreshCw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { analyzeDocument, LONG_SENTENCE_WORDS } from "@/analysis/analyze";
-import type { DocumentAnalysis, Issue } from "@/analysis/types";
-import type { RewriteClient } from "@/api/rewrite-client";
-import { useGateway } from "@/office/gateway-context";
-import type { SentenceRef } from "@/office/types";
-import { AppFooter } from "./AppFooter";
-import { AppHeader } from "./AppHeader";
-import { IssueList } from "./IssueList";
-import { RewritePanel } from "./RewritePanel";
-import { ScoreCard } from "./ScoreCard";
-import { useSettings } from "./settings";
-import { SettingsPanel } from "./SettingsPanel";
+import { Button } from '@eylulg/ui/button';
+import { AppShell } from '@eylulg/ui/chrome';
+import { Switch } from '@eylulg/ui/switch';
+import { RefreshCw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { analyzeDocument, LONG_SENTENCE_WORDS } from '@/analysis/analyze';
+import type { DocumentAnalysis, Issue } from '@/analysis/types';
+import type { RewriteClient } from '@/api/rewrite-client';
+import { useGateway } from '@/office/gateway-context';
+import type { SentenceRef } from '@/office/types';
+import { AppFooter } from './AppFooter';
+import { AppHeader } from './AppHeader';
+import { IssueList } from './IssueList';
+import { RewritePanel } from './RewritePanel';
+import { ScoreCard } from './ScoreCard';
+import { useSettings } from './settings';
+import { SettingsPanel } from './SettingsPanel';
 
-const HIGHLIGHT_COLOR = "Yellow";
-const READ_ERROR = "Could not read the document. Select Analyse to try again.";
+const HIGHLIGHT_COLOR = 'Yellow';
+const READ_ERROR = 'Could not read the document. Select Analyse to try again.';
 
 function analysisStatus(result: DocumentAnalysis): string {
   return `Analysed ${result.stats.words} words. Found ${result.issues.length} issues.`;
@@ -27,7 +27,7 @@ export function App({ client }: { client: RewriteClient }) {
   const gateway = useGateway();
   const [settings, updateSettings] = useSettings();
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [highlighted, setHighlighted] = useState(false);
   const [busy, setBusy] = useState(true);
@@ -38,7 +38,7 @@ export function App({ client }: { client: RewriteClient }) {
 
   const longSentences: SentenceRef[] =
     analysis?.issues
-      .filter((i) => i.type === "long-sentence")
+      .filter((i) => i.type === 'long-sentence')
       .map((i) => ({ paragraphIndex: i.paragraphIndex, text: i.sentence })) ?? [];
 
   useEffect(() => {
@@ -87,10 +87,13 @@ export function App({ client }: { client: RewriteClient }) {
         text: issue.sentence,
       });
       if (call !== latestCall.current) return;
-      if (found) setStatus("Sentence selected in the document.");
-      else setError("Could not find that sentence. The document may have changed, so analyse it again.");
+      if (found) setStatus('Sentence selected in the document.');
+      else
+        setError(
+          'Could not find that sentence. The document may have changed, so analyse it again.',
+        );
     } catch {
-      if (call === latestCall.current) setError("Could not select that sentence. Try again.");
+      if (call === latestCall.current) setError('Could not select that sentence. Try again.');
     }
   }
 
@@ -104,19 +107,21 @@ export function App({ client }: { client: RewriteClient }) {
       if (call !== latestCall.current) return;
       setHighlighted(on);
       setStatus(
-        on ? `Highlighted ${count} long ${count === 1 ? "sentence" : "sentences"}.` : "Highlights removed.",
+        on
+          ? `Highlighted ${count} long ${count === 1 ? 'sentence' : 'sentences'}.`
+          : 'Highlights removed.',
       );
     } catch {
-      if (call === latestCall.current) setError("Could not change the highlights. Try again.");
+      if (call === latestCall.current) setError('Could not change the highlights. Try again.');
     }
   }
 
   return (
-    <AppShell header={<AppHeader isPreview={gateway.kind === "preview"} />} footer={<AppFooter />}>
-      <div className="flex flex-col gap-4">
+    <AppShell header={<AppHeader isPreview={gateway.kind === 'preview'} />} footer={<AppFooter />}>
+      <div className='flex flex-col gap-4'>
         <Button
-          size="sm"
-          variant="secondary"
+          size='sm'
+          variant='secondary'
           iconLeading={RefreshCw}
           isLoading={busy}
           onPress={handleAnalyse}
@@ -124,22 +129,22 @@ export function App({ client }: { client: RewriteClient }) {
           Analyse
         </Button>
 
-        <p role="status" className="sr-only">
+        <p role='status' className='sr-only'>
           {status}
         </p>
         {error && (
-          <p role="alert" className="rounded-lg bg-error-subtle p-3 text-sm text-error">
+          <p role='alert' className='rounded-lg bg-error-subtle p-3 text-sm text-error'>
             {error}
           </p>
         )}
 
-        {!analysis && busy && <div aria-hidden className="min-h-[41rem]" data-reserve="results" />}
+        {!analysis && busy && <div aria-hidden className='min-h-[41rem]' data-reserve='results' />}
 
         {analysis && (
           <>
             <ScoreCard analysis={analysis} targetGrade={settings.targetGrade} />
             <Switch
-              size="sm"
+              size='sm'
               hint={`${longSentences.length} over ${LONG_SENTENCE_WORDS} words`}
               isSelected={highlighted}
               isDisabled={!highlighted && longSentences.length === 0}
