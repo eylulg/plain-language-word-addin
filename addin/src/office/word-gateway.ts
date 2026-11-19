@@ -1,6 +1,6 @@
-import { planSearch } from "./search";
-import type { SelectedParagraph, SentenceRef, WordGateway } from "./types";
-import { ParagraphChangedError, TrackedChangesUnsupportedError } from "./types";
+import { planSearch } from './search';
+import type { SelectedParagraph, SentenceRef, WordGateway } from './types';
+import { ParagraphChangedError, TrackedChangesUnsupportedError } from './types';
 
 const SEARCH_OPTIONS = { matchCase: true } as const;
 
@@ -10,17 +10,20 @@ interface PendingRange {
 }
 
 /** Queues the searches for each sentence. Call context.sync() before resolving. */
-function queueSearches(context: Word.RequestContext, refs: readonly SentenceRef[]): (PendingRange | null)[] {
+function queueSearches(
+  context: Word.RequestContext,
+  refs: readonly SentenceRef[],
+): (PendingRange | null)[] {
   const paragraphs = context.document.body.paragraphs;
   return refs.map((ref) => {
     const paragraph = paragraphs.items[ref.paragraphIndex];
     if (!paragraph) return null;
     const plan = planSearch(ref.text);
     const head = paragraph.search(plan.head, SEARCH_OPTIONS).getFirstOrNullObject();
-    head.load("isNullObject");
+    head.load('isNullObject');
     if (plan.tail === undefined) return { head };
     const tail = paragraph.search(plan.tail, SEARCH_OPTIONS).getFirstOrNullObject();
-    tail.load("isNullObject");
+    tail.load('isNullObject');
     return { head, tail };
   });
 }
@@ -37,7 +40,7 @@ async function findRanges(
   refs: readonly SentenceRef[],
 ): Promise<(Word.Range | null)[]> {
   const paragraphs = context.document.body.paragraphs;
-  paragraphs.load("items");
+  paragraphs.load('items');
   await context.sync();
   const pending = queueSearches(context, refs);
   await context.sync();
@@ -46,12 +49,12 @@ async function findRanges(
 
 export function createWordGateway(): WordGateway {
   return {
-    kind: "word",
+    kind: 'word',
 
     async readParagraphs() {
       return Word.run(async (context) => {
         const paragraphs = context.document.body.paragraphs;
-        paragraphs.load("items/text");
+        paragraphs.load('items/text');
         await context.sync();
         return paragraphs.items.map((p) => p.text);
       });
@@ -61,7 +64,7 @@ export function createWordGateway(): WordGateway {
       return Word.run(async (context) => {
         const [range] = await findRanges(context, [ref]);
         if (!range) return false;
-        range.select("Select");
+        range.select('Select');
         await context.sync();
         return true;
       });
@@ -85,12 +88,12 @@ export function createWordGateway(): WordGateway {
     async getSelectedParagraph(): Promise<SelectedParagraph | null> {
       return Word.run(async (context) => {
         const selected = context.document.getSelection().paragraphs.getFirst();
-        selected.load("text");
+        selected.load('text');
         const paragraphs = context.document.body.paragraphs;
-        paragraphs.load("items/text");
+        paragraphs.load('items/text');
         await context.sync();
 
-        if (selected.text.trim() === "") return null;
+        if (selected.text.trim() === '') return null;
         const candidates = paragraphs.items
           .map((paragraph, index) => ({ paragraph, index }))
           .filter(({ paragraph }) => paragraph.text === selected.text);
@@ -99,12 +102,12 @@ export function createWordGateway(): WordGateway {
         if (candidates.length === 1 && only) return { index: only.index, text: selected.text };
 
         // Several paragraphs share this text: ask Word which one holds the selection.
-        const selectedRange = selected.getRange("Whole");
+        const selectedRange = selected.getRange('Whole');
         const relations = candidates.map(({ paragraph }) =>
-          paragraph.getRange("Whole").compareLocationWith(selectedRange),
+          paragraph.getRange('Whole').compareLocationWith(selectedRange),
         );
         await context.sync();
-        const hit = relations.findIndex((relation) => relation.value === "Equal");
+        const hit = relations.findIndex((relation) => relation.value === 'Equal');
         const match = candidates[hit];
         return match ? { index: match.index, text: selected.text } : null;
       });
@@ -114,20 +117,20 @@ export function createWordGateway(): WordGateway {
       if (!this.supportsTrackedChanges()) throw new TrackedChangesUnsupportedError();
       await Word.run(async (context) => {
         const document = context.document;
-        document.load("changeTrackingMode");
+        document.load('changeTrackingMode');
         const paragraphs = document.body.paragraphs;
-        paragraphs.load("items/text");
+        paragraphs.load('items/text');
         await context.sync();
 
         const paragraph = paragraphs.items[target.index];
         if (!paragraph || paragraph.text !== target.text) throw new ParagraphChangedError();
 
         const previousMode = document.changeTrackingMode;
-        document.changeTrackingMode = "TrackAll";
+        document.changeTrackingMode = 'TrackAll';
         await context.sync();
         try {
           // "Content" keeps the paragraph mark, so the paragraph style survives.
-          paragraph.getRange("Content").insertText(newText, "Replace");
+          paragraph.getRange('Content').insertText(newText, 'Replace');
           await context.sync();
         } finally {
           document.changeTrackingMode = previousMode;
@@ -137,7 +140,7 @@ export function createWordGateway(): WordGateway {
     },
 
     supportsTrackedChanges() {
-      return Office.context.requirements.isSetSupported("WordApi", "1.4");
+      return Office.context.requirements.isSetSupported('WordApi', '1.4');
     },
   };
 }

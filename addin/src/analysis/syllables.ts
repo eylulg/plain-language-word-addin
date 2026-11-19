@@ -27,13 +27,13 @@ const SPECIAL_CASES: Record<string, number> = {
 export function countSyllables(rawWord: string): number {
   if (/^\d[\d.,]*%?$/.test(rawWord)) return 1;
 
-  const word = rawWord.toLowerCase().replace(/[^a-z]/g, "");
+  const word = rawWord.toLowerCase().replace(/[^a-z]/g, '');
   if (word.length === 0) return 0;
   const special = SPECIAL_CASES[word];
   if (special !== undefined) return special;
   if (word.length <= 3) return 1;
 
-  const stem = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, "").replace(/^y/, "");
+  const stem = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '');
   const groups = stem.match(/[aeiouy]+/g)?.length ?? 0;
   return Math.max(1, groups);
 }

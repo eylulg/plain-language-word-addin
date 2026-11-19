@@ -7,7 +7,7 @@ const EDGE_LENGTH = 120;
  * wildcards, so it has to be doubled to match literally.
  */
 export function escapeSearchText(text: string): string {
-  return text.replace(/\^/g, "^^");
+  return text.replace(/\^/g, '^^');
 }
 
 export interface SearchPlan {
@@ -22,9 +22,10 @@ export interface SearchPlan {
  */
 export function planSearch(text: string): SearchPlan {
   const trimmed = text.trim();
-  if (escapeSearchText(trimmed).length <= MAX_SEARCH_LENGTH) return { head: escapeSearchText(trimmed) };
+  if (escapeSearchText(trimmed).length <= MAX_SEARCH_LENGTH)
+    return { head: escapeSearchText(trimmed) };
 
-  const head = trimmed.slice(0, EDGE_LENGTH).replace(/\s+\S*$/, "");
-  const tail = trimmed.slice(-EDGE_LENGTH).replace(/^\S*\s+/, "");
+  const head = trimmed.slice(0, EDGE_LENGTH).replace(/\s+\S*$/, '');
+  const tail = trimmed.slice(-EDGE_LENGTH).replace(/^\S*\s+/, '');
   return { head: escapeSearchText(head), tail: escapeSearchText(tail) };
 }

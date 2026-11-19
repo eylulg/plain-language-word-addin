@@ -17,7 +17,7 @@ export interface SelectedParagraph {
  */
 export interface WordGateway {
   /** "word" inside Office, "preview" in a plain browser tab. */
-  readonly kind: "word" | "preview";
+  readonly kind: 'word' | 'preview';
   readParagraphs(): Promise<string[]>;
   /** Selects the sentence in the document. Resolves false if it was not found. */
   selectSentence(ref: SentenceRef): Promise<boolean>;
@@ -36,14 +36,14 @@ export interface WordGateway {
 
 export class ParagraphChangedError extends Error {
   constructor() {
-    super("The paragraph changed after the rewrite was requested. Request a new rewrite.");
-    this.name = "ParagraphChangedError";
+    super('The paragraph changed after the rewrite was requested. Request a new rewrite.');
+    this.name = 'ParagraphChangedError';
   }
 }
 
 export class TrackedChangesUnsupportedError extends Error {
   constructor() {
-    super("This version of Word does not support tracked changes from add-ins (WordApi 1.4).");
-    this.name = "TrackedChangesUnsupportedError";
+    super('This version of Word does not support tracked changes from add-ins (WordApi 1.4).');
+    this.name = 'TrackedChangesUnsupportedError';
   }
 }

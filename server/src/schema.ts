@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-const TONES = ["neutral", "friendly", "formal"] as const;
+const TONES = ['neutral', 'friendly', 'formal'] as const;
 export type Tone = (typeof TONES)[number];
 
 export function rewriteRequestSchema(maxTextChars: number) {
@@ -8,7 +8,7 @@ export function rewriteRequestSchema(maxTextChars: number) {
     text: z
       .string()
       .trim()
-      .min(1, "Text is empty.")
+      .min(1, 'Text is empty.')
       .max(maxTextChars, `Text is longer than ${maxTextChars} characters.`),
     targetGrade: z.number().int().min(3).max(16),
     tone: z.enum(TONES),

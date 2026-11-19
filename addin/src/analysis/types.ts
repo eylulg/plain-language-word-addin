@@ -1,19 +1,19 @@
-export type IssueType = "long-sentence" | "passive-voice" | "nominalisation" | "jargon" | "filler";
+export type IssueType = 'long-sentence' | 'passive-voice' | 'nominalisation' | 'jargon' | 'filler';
 
 export const ISSUE_TYPES: readonly IssueType[] = [
-  "long-sentence",
-  "passive-voice",
-  "nominalisation",
-  "jargon",
-  "filler",
+  'long-sentence',
+  'passive-voice',
+  'nominalisation',
+  'jargon',
+  'filler',
 ];
 
 export const ISSUE_LABELS: Record<IssueType, string> = {
-  "long-sentence": "Long sentence",
-  "passive-voice": "Passive voice",
-  nominalisation: "Nominalisation",
-  jargon: "Jargon",
-  filler: "Filler word",
+  'long-sentence': 'Long sentence',
+  'passive-voice': 'Passive voice',
+  nominalisation: 'Nominalisation',
+  jargon: 'Jargon',
+  filler: 'Filler word',
 };
 
 /** A sentence located inside its paragraph by character offsets. */
@@ -69,10 +69,10 @@ export interface DocumentAnalysis {
 }
 
 export type ReadabilityLabel =
-  | "Very easy"
-  | "Easy"
-  | "Fairly easy"
-  | "Plain English"
-  | "Fairly difficult"
-  | "Difficult"
-  | "Very difficult";
+  | 'Very easy'
+  | 'Easy'
+  | 'Fairly easy'
+  | 'Plain English'
+  | 'Fairly difficult'
+  | 'Difficult'
+  | 'Very difficult';

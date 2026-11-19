@@ -4,17 +4,17 @@ import {
   findLongSentence,
   findNominalisations,
   findPassiveVoice,
-} from "./detectors";
-import { countText, readabilityLabel, statsFromCounts } from "./readability";
-import { splitSentences } from "./sentences";
-import type { DocumentAnalysis, Issue, IssueCounts, ParagraphAnalysis } from "./types";
+} from './detectors';
+import { countText, readabilityLabel, statsFromCounts } from './readability';
+import { splitSentences } from './sentences';
+import type { DocumentAnalysis, Issue, IssueCounts, ParagraphAnalysis } from './types';
 
 export const LONG_SENTENCE_WORDS = 25;
 
 export function countIssues(issues: readonly Issue[]): IssueCounts {
   const counts: IssueCounts = {
-    "long-sentence": 0,
-    "passive-voice": 0,
+    'long-sentence': 0,
+    'passive-voice': 0,
     nominalisation: 0,
     jargon: 0,
     filler: 0,

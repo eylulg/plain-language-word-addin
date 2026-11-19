@@ -1,6 +1,6 @@
-import { SAMPLE_DOCUMENT } from "./sample-document";
-import type { SelectedParagraph, WordGateway } from "./types";
-import { ParagraphChangedError } from "./types";
+import { SAMPLE_DOCUMENT } from './sample-document';
+import type { SelectedParagraph, WordGateway } from './types';
+import { ParagraphChangedError } from './types';
 
 /**
  * An in-memory stand-in for Word, used when the task pane is opened in a
@@ -13,7 +13,7 @@ export function createPreviewGateway(initial: readonly string[] = SAMPLE_DOCUMEN
   if (cursor < 0) cursor = 0;
 
   return {
-    kind: "preview",
+    kind: 'preview',
     async readParagraphs() {
       return [...paragraphs];
     },
