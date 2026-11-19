@@ -7,3 +7,4 @@ coverage/
 .vercel/
 .wrangler/
 .DS_Store
+results.sarif
