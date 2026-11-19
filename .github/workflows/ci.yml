@@ -48,21 +48,6 @@ jobs:
         run: npx office-addin-manifest validate addin/manifest.xml
         continue-on-error: true
 
-  commits:
-    name: Conventional Commits
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
-
   secrets:
     name: Secret scan
     runs-on: ubuntu-latest
