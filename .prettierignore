@@ -3,3 +3,5 @@ dist
 coverage
 package-lock.json
 results.sarif
+addin/manifest.dev.xml
+addin/manifest.dev.xml

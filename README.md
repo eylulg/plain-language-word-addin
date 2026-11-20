@@ -63,10 +63,10 @@ npm start                       # starts https://localhost:3100 and sideloads in
 
 The add-in reads the server URL from `VITE_REWRITE_API_URL` (see `addin/.env.example`).
 
-### Deploy the server
+### Deploy
 
-- **Vercel:** import the repo with `server` as the root directory. `src/index.ts` exports the Hono app. Set `ANTHROPIC_API_KEY` and `ALLOWED_ORIGINS` in the project settings.
-- **Cloudflare Workers:** `cd server && npx wrangler deploy`, then `npx wrangler secret put ANTHROPIC_API_KEY`. Edit `ALLOWED_ORIGINS` in `wrangler.toml`.
+- **Server, Cloudflare Workers (free tier):** `cd server && npx wrangler deploy` with `CLOUDFLARE_API_TOKEN` set. The Worker is called `plain-language`, so it serves at `https://plain-language.<account>.workers.dev`. `ALLOWED_ORIGINS` in `server/wrangler.toml` is `https://eylulg.github.io`. With no `ANTHROPIC_API_KEY` it replays fixture rewrites and never calls Claude; to use Claude run `npx wrangler secret put ANTHROPIC_API_KEY`. Try it locally with `npm run dev:worker -w server`.
+- **Add-in, GitHub Pages:** `.github/workflows/pages.yml` builds the add-in on every push to main and publishes it to https://eylulg.github.io/plain-language-word-addin/. Set Pages to "GitHub Actions" in the repository settings and add the repository variable `REWRITE_API_URL` with the Worker URL. The same URL serves the task pane in a plain browser with a sample document and "Demo mode" rewrites, and `manifest.xml` for sideloading.
 - **Any Node host:** `npm run build -w server && npm start -w server` with `NODE_ENV=production` and `TRUST_PROXY=true` behind a proxy.
 
 The rate limit is kept in memory per instance (10 requests a minute per client by default), which is enough for a demo. Use a shared store for real traffic.
@@ -94,4 +94,4 @@ MIT, see [LICENSE](LICENSE).
 
 ## Design system
 
-The add-in uses [`@eylulg/ui`](https://github.com/eylulg/ui) with the `plain-language` theme variant. It is installed as a copy of `../ui` (`npm install ../ui --install-links` at the workspace root; `npm run relink` does the same after the library is rebuilt), so clone `ui` next to this repo and build it (`npm install && npm run build`) before `npm install` here. CI checks `eylulg/ui` out to `ui-src`, builds it and points the dependency there for that run only. Once the library is published the dependency becomes `^1.0.0` and the checkout steps go away. Vercel deploys need that publish.
+The add-in uses [`@eylulg/ui`](https://github.com/eylulg/ui) with the `plain-language` theme variant. It is installed as a copy of `../ui` (`npm install ../ui --install-links` at the workspace root; `npm run relink` does the same after the library is rebuilt), so clone `ui` next to this repo and build it (`npm install && npm run build`) before `npm install` here. CI checks `eylulg/ui` out to `ui-src`, builds it and points the dependency there for that run only. Once the library is published the dependency becomes `^1.0.0` and the checkout steps go away.

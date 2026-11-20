@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Rewrite API for the Plain Language Word add-in. Hono on Node, Vercel or Cloudflare Workers.",
+  "description": "Rewrite API for the Plain Language Word add-in. Hono on Cloudflare Workers, with a Node entry for local development.",
   "main": "dist/node.js",
   "scripts": {
     "dev": "tsx watch src/node.ts",
@@ -11,7 +11,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsc -p tsconfig.build.json"
+    "build": "tsc -p tsconfig.build.json",
+    "dev:worker": "npx wrangler dev"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

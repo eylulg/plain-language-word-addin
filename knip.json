@@ -10,7 +10,7 @@
       "ignoreDependencies": ["tailwindcss"]
     },
     "server": {
-      "entry": ["src/index.ts", "src/worker.ts", "src/__tests__/**/*.test.ts"],
+      "entry": ["src/worker.ts", "src/__tests__/**/*.test.ts"],
       "project": ["src/**/*.ts"]
     }
   }

@@ -1,5 +1,7 @@
 # Sideloading Plain Language
 
+`manifest.xml` points at the hosted add-in on GitHub Pages. For local development, `npm start -w addin` (or `npm run manifest:dev -w addin`) writes `addin/manifest.dev.xml` with `https://localhost:3100` URLs; use that file below instead of `manifest.xml`. To try the hosted add-in, sideload `manifest.xml` itself, or download it from https://eylulg.github.io/plain-language-word-addin/manifest.dev.xml.
+
 Start the add-in and the server first:
 
 ```bash
@@ -20,7 +22,7 @@ By hand:
 2. Copy the manifest into Word's add-in folder (create the folder if it does not exist):
    ```bash
    mkdir -p ~/Library/Containers/com.microsoft.Word/Data/Documents/wef
-   cp addin/manifest.xml ~/Library/Containers/com.microsoft.Word/Data/Documents/wef/
+   cp addin/manifest.dev.xml ~/Library/Containers/com.microsoft.Word/Data/Documents/wef/
    ```
 3. Open Word and a document. On the **Home** tab select **Plain Language**. If the button is missing, open **Insert > Add-ins > My Add-ins** and choose it under **Developer Add-ins**.
 
@@ -42,7 +44,7 @@ By hand, with a shared folder catalog:
 
 1. Open a document at https://www.office.com.
 2. Select **Home > Add-ins > More Add-ins** (or **Insert > Add-ins**), then **My Add-ins > Upload My Add-in**.
-3. Browse to `addin/manifest.xml` and select **Upload**.
+3. Browse to `addin/manifest.dev.xml` and select **Upload**.
 
 Alternatively run `npm run start:web -w addin -- --document <URL of a document in OneDrive>`.
 
@@ -50,4 +52,4 @@ The web version runs in your browser, so the browser must trust the dev certific
 
 ## Hosting for others
 
-To share the add-in, build it (`npm run build -w addin`), host `addin/dist` on any HTTPS static host, and replace every `https://localhost:3100` in `manifest.xml` with that URL. Set `VITE_REWRITE_API_URL` to the deployed server before building, and add the add-in's URL to the server's `ALLOWED_ORIGINS`.
+`.github/workflows/pages.yml` publishes `addin/dist` to GitHub Pages. To host elsewhere, build with `npm run build -w addin`, serve `addin/dist` over HTTPS, and replace `https://eylulg.github.io/plain-language-word-addin/` in `manifest.xml` (and change `base` in `addin/vite.config.ts`). Set `VITE_REWRITE_API_URL` to the deployed server before building, and add the add-in's origin to the server's `ALLOWED_ORIGINS`.

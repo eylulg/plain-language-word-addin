@@ -8,3 +8,5 @@ coverage/
 .wrangler/
 .DS_Store
 results.sarif
+addin/manifest.dev.xml
+addin/manifest.dev.xml
