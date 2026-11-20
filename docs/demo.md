@@ -1,10 +1,10 @@
 # Demo video plan
 
-A 90 second screen recording of Word on Mac with the task pane open. Record at 1440 x 900 or larger, system dark mode off, with notifications muted. Use the sample text below so the numbers on screen match the README.
+A 90 second screen recording of Word on Mac with the task pane open. Record at 1440 x 900 or larger, with dark mode off and notifications muted.
 
 ## Setup before recording
 
-- Server running with an `ANTHROPIC_API_KEY` (or in demo mode, which shows a "Demo mode" badge; fine for a dry run, not for the final cut).
+- Server running with an `ANTHROPIC_API_KEY`. Without one it runs in demo mode and shows a "Demo mode" badge, which is fine for a dry run but not for the final cut.
 - A new Word document with these paragraphs:
   1. "Tenancy notice"
   2. "In the event that the tenant fails to make payment of the rent in accordance with the terms hereinafter set out, the landlord shall be entitled to terminate the agreement forthwith and to recover possession of the premises."
@@ -28,7 +28,3 @@ A 90 second screen recording of Word on Mac with the task pane open. Record at 1
 
 - "Only the paragraph you rewrite is sent to the server."
 - "Inserted as a tracked change, with your own tracking setting restored."
-
-## Screenshots for the README
-
-Take `docs/screenshots/taskpane.png` from shot 6 (task pane only, about 400 px wide) after recording.

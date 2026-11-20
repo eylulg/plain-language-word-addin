@@ -1,8 +1,8 @@
 # Sideloading Plain Language
 
-`manifest.xml` points at the hosted add-in on GitHub Pages. For local development, `npm start -w addin` (or `npm run manifest:dev -w addin`) writes `addin/manifest.dev.xml` with `https://localhost:3100` URLs; use that file below instead of `manifest.xml`. To try the hosted add-in, sideload `manifest.xml` itself, or download it from https://eylulg.github.io/plain-language-word-addin/manifest.dev.xml.
+`manifest.xml` points at the hosted add-in on GitHub Pages. For local development, `npm start` (or `npm run manifest:dev -w addin`) writes `addin/manifest.dev.xml` with `https://localhost:3100` URLs, which is the file to sideload below. To try the hosted add-in, sideload `manifest.xml` itself. It is also served at https://eylulg.github.io/plain-language-word-addin/manifest.xml.
 
-Start the add-in and the server first:
+Start the server and the add-in first (this is not needed if `npm start` runs them):
 
 ```bash
 npm run certs -w addin   # once
@@ -10,11 +10,11 @@ npm run dev:server
 npm run dev:addin        # serves https://localhost:3100
 ```
 
-Open https://localhost:3100/taskpane.html in a browser once. If it loads without a certificate warning, Word will load it too.
+Open https://localhost:3100/taskpane.html in a browser once. If there is no certificate warning, Word will load it too.
 
 ## Word on Mac
 
-Automatic: `npm start` sideloads the manifest and opens Word.
+`npm start` sideloads the manifest and opens Word.
 
 By hand:
 
@@ -32,11 +32,11 @@ To debug, right-click inside the task pane and choose **Inspect Element**. If th
 
 ## Word on Windows
 
-Automatic: `npm start` sideloads the manifest and opens Word.
+`npm start` sideloads the manifest and opens Word.
 
 By hand, with a shared folder catalog:
 
-1. Create a folder such as `C:\addins`, share it (**Properties > Sharing > Share**) and copy `addin\manifest.xml` into it.
+1. Create a folder such as `C:\addins`, share it (**Properties > Sharing > Share**) and copy `addin\manifest.dev.xml` into it.
 2. In Word, go to **File > Options > Trust Center > Trust Center Settings > Trusted Add-in Catalogs**. Add the network path of the share (for example `\\YOUR-PC\addins`), tick **Show in Menu**, and restart Word.
 3. Open **Home > Add-ins > More Add-ins > Shared Folder**, choose **Plain Language** and select **Add**.
 
