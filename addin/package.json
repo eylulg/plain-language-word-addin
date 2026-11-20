@@ -12,9 +12,10 @@
   "scripts": {
     "dev": "vite",
     "dev-server": "vite",
-    "start": "office-addin-debugging start manifest.xml desktop --app word --dev-server \"npm run dev-server\" --dev-server-port 3100",
-    "start:web": "office-addin-debugging start manifest.xml web --app word --dev-server \"npm run dev-server\" --dev-server-port 3100",
-    "stop": "office-addin-debugging stop manifest.xml",
+    "manifest:dev": "sed 's#https://eylulg.github.io/plain-language-word-addin/#https://localhost:3100/#g; s#<AppDomain>https://eylulg.github.io#<AppDomain>https://localhost:3100#' manifest.xml > manifest.dev.xml",
+    "start": "npm run manifest:dev && office-addin-debugging start manifest.dev.xml desktop --app word --dev-server \"npm run dev-server\" --dev-server-port 3100",
+    "start:web": "npm run manifest:dev && office-addin-debugging start manifest.dev.xml web --app word --dev-server \"npm run dev-server\" --dev-server-port 3100",
+    "stop": "office-addin-debugging stop manifest.dev.xml",
     "certs": "office-addin-dev-certs install",
     "validate": "office-addin-manifest validate manifest.xml",
     "icons": "node scripts/generate-icons.mjs",

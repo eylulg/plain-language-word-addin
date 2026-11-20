@@ -19,6 +19,8 @@ async function httpsOptions(): Promise<ServerOptions['https']> {
 export default defineConfig(async ({ command }) => {
   const needsHttps = command === 'serve' && !process.env.VITEST;
   return {
+    // Served from a sub-path on GitHub Pages, from the root in development.
+    base: command === 'build' ? '/plain-language-word-addin/' : '/',
     plugins: [
       react(),
       tailwindcss(),
